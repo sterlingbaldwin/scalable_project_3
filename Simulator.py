@@ -16,12 +16,3 @@ class simulator:
         self._ships = [ship(ShipID=uuid4.hex()) for _ in range(num_ships)]
         self._stations = [station({'x': 0, 'y': 0}) for _ in range(num_stations)]
     
-    def in_range(a, b):
-        """
-        Determine if entity a and b are able to communicate
-        """
-        span = distance(a, b)
-        if span < a.range and span < b.range:
-            return True
-        else:
-            return False
