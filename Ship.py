@@ -9,19 +9,18 @@ from typing import List
 __COMMUNICATION_RANGE = [100, 1000]
 __SPEED_RANGE = [100, 1000]
 
-class ships:
-    """Ships Class
+class ship:
+    """Ship Class
     Args:
         loc(tuple): x and y cordinate of the Ships
-        range(int): Commucication radius range of the ships
+        ShipID(str): the name of the ship
     """
-    def __init__(self, ShipID: str, source: str, destination: str) -> None:
+    def __init__(self, ShipID: str) -> None:
         self.id = ShipID
         self.__loc = (0.0, 0.0)
         self.__range = 0
         self.__speed = 0
-        self.source = source
-        self.destination = destination
+        self.itinerary = []
         pass
 
     @property
