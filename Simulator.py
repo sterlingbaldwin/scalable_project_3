@@ -12,7 +12,8 @@ from util import distance
 
 
 class simulator:
-    def __init__(self, num_ships: int, num_stations: int) -> None:
+    def __init__(self, num_ships: int, num_stations: int, size: int) -> None:
         self._ships = [ship(ShipID=uuid4.hex()) for _ in range(num_ships)]
         self._stations = [station({'x': 0, 'y': 0}) for _ in range(num_stations)]
+        self._world_size = size
     
