@@ -12,20 +12,15 @@ def main():
         default=1e5,
         help="The size of the simulated universe, default is 1e5 km")
     parser.add_argument(
-        '--stations',
-        type=int,
-        default=10,
-        help="The number of fixed stations, default is 10")
-    parser.add_argument(
-        '--ships',
-        type=int,
-        default=100,
-        help="The number of moving ships, default is 100")
+        "--host",
+        type=str,
+        default="127.0.0.1",
+        help="The IP address to bind to, by default is set to 172.0.0.1. If you want anyone else to see the server run with 0.0.0.0")
     args = parser.parse_args()
     sim = simulator(
-        num_ships=args.ships,
-        num_stations=args.stations,
-        size=args.size)
+        size=args.size,
+        host=args.host)
+    sim()
 
 if __name__ == "__main__":
     sys.exit(main())

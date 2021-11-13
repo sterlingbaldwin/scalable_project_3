@@ -16,7 +16,7 @@ class ship:
         ShipID(str): the name of the ship
     """
     def __init__(self, ShipID: str) -> None:
-        self.id = ShipID
+        self._id = ShipID
         self.__loc = (0.0, 0.0)
         self.__range = 0
         self.__speed = 0
@@ -33,14 +33,14 @@ class ship:
         return self.__loc
     
     @loc.setter
-    def loc(self, inp: List[float]):
+    def loc(self, inp: tuple[float]):
         """Setter fuction for the location property
 
         Args:
-            inp (List[float]): (x, y) type input
+            inp (tuple[float]): (x, y) type input
         """
         if len(inp) == 2:
-            self.__loc = tuple(inp)
+            self.__loc = inp
         else:
             raise ValueError('Input type expected in the form of x,y')
     
