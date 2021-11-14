@@ -1,5 +1,7 @@
 import sys
+import os
 import argparse
+import paramiko
 from random import choice
 from multiprocessing import Process
 from subprocess import Popen, PIPE
@@ -8,6 +10,8 @@ from Simulator import simulator
 
 # PI_ADDRESSES = ["10.35.70.29", "10.35.70.20"]
 PI_ADDRESSES = ["10.35.70.29"]
+SSH_KEY = "~/.ssh/id_rsa.pub"
+USER = os.environ['USER']
 
 
 def run_simulator(world_size: int, address: str, port: str):
@@ -22,13 +26,15 @@ def setup_stations(num_stations: int, address: str, port: str):
     for _ in range(num_stations):
         address = choice(PI_ADDRESSES)
         print(f"starting new station on {address}")
-        cmd = ["ssh", address, f"'bash ~/projects/scalable_project_3/start_station.sh {address} {port}'"]
-        print(f"running: {' '.join(cmd)}")
-        proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
-        out, err = proc.communicate()
-        if err:
-            print(err)
-        print(out)
+        client = paramiko.SSHClient()
+        client.load_system_host_keys()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        client.connect(address, username=USER, key_filename=SSH_KEY)
+        cmd = f'bash ~/projects/scalable_project_3/start_station.sh {address} {port}'
+        (_, stdout, stderr) = client.exec_command(cmd)
+        
+        print(stderr.decode('utf-8'))
+        print(stdout.decode('utf-8'))
 
 def setup_ships(number):
     pass

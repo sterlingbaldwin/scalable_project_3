@@ -10,8 +10,8 @@ from uuid import uuid4
 
 s = ship(
     shipId=uuid4.hex(), 
-    address=$1,
-    port=$2)
+    address='$1',
+    port='$2')
 s.run()
 
 " &
