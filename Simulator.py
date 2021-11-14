@@ -4,15 +4,16 @@ __title__ = "Simulator"
 __author__ = "Scalable Module Group 15"
 __version__ = 1.0
 
-from uuid import uuid4
+import json
 from flask import Flask, Response, request
+from flask.json import dumps
 from numpy.random import uniform, choice
-# from app import routes
+from dataclasses import dataclass
 
 from Ship import ship
 from Station import station
 
-class EndpointAction(object):
+class EndpointAction:
 
     def __init__(self, action):
         self.action = action
@@ -22,10 +23,21 @@ class EndpointAction(object):
         self.response = self.action(request)
         return self.response
 
+@dataclass
+class ShipRecord:
+    """Class to hold basic info about a ship"""
+    name: str
+    location: tuple
+
+@dataclass
+class StationRecord:
+    """Class to hold basic info about a station"""
+    name: str
+    location: tuple
+
+
 class simulator:
     def __init__(self, size: int, host:str = "127.0.0.1") -> None:
-        # self._ships = [ship(ShipID=uuid4.hex()) for _ in range(num_ships)]
-        # self._stations = [station({'x': 0, 'y': 0}) for _ in range(num_stations)]
         print("Initializing the simulator")
         self._world_size = size
         self._app = None
@@ -48,7 +60,7 @@ class simulator:
 
     def new_entity_endpoint(self, request):
         print(f"got a new entity connection request with info {request}")
-        res = Response(status=200, headers={})
+        res = None
         entity_type = request.args.get('entity_type')
         entity_id = request.args.get('entity_id')
         if not entity_type:
@@ -62,8 +74,8 @@ class simulator:
                 res = Response(response=f"{entity_type} is not a valid entity type", status=400)
                 return res
             if entity_type == "ship":
-                for ship in self.ships:
-                    if ship._id == entity_id:
+                for ship in self._ships:
+                    if ship.name == entity_id:
                         res = Response(response=f"a ship with id {entity_id} already exists", status=400)
                         return res
                 # if our station list is empty, just drop the ship anywhere
@@ -71,24 +83,32 @@ class simulator:
                     posx = uniform(0, self._world_size)
                     posy = uniform(0, self._world_size)
                 else:
-                    loc = choice(self._stations).loc
+                    loc = choice(self._stations).location
                     posx = loc[0]
                     posy = loc[0]
-                new_ship = ship(entity_id)
-                new_ship.loc((posx, posy))
-                self.ships.append(new_ship)
+                new_ship = ShipRecord(name=entity_id, location=(posx, posy))
+                self._ships.append(new_ship)
+                res = Response(
+                    json.dumps({
+                        "location": (posx, posy)
+                    }),
+                    status=200)
             if entity_type == "station":
-                for station in self.stations:
-                    if station._id == entity_id:
+                for station in self._stations:
+                    if station.name == entity_id:
                         res = Response(response=f"a station with id {entity_id} already exists", status=400)
                         return res
                 posx = uniform(0, self._world_size)
                 posy = uniform(0, self._world_size)
-                new_station = station(
+                new_station = StationRecord(
                     location=(posx, posy),
-                    population=uniform(100, 100_000),
-                    stationID=entity_id)
-                self.ships.append(new_station)
+                    name=entity_id)
+                self._stations.append(new_station)
+                res = Response(
+                    json.dumps({
+                        "location": (posx, posy)
+                    }),
+                    status=200)
         return res
 
 
