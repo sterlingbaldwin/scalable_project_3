@@ -37,7 +37,7 @@ class station:
             "entity_type": "station",
             "entity_id": self.__id
         }
-        print("Sending connection request to simulator")
+        print(f"Sending connection request to simulator on url {url}")
         if (res := requests.get(url, params)).status_code != 200:
             raise ValueError("Unable to connect to simulator: {res}")
         data = json.loads(res.content)

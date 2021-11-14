@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cd projects/scalable_project_3
-source venv/bin/activate
+source .venv/bin/activate
 python3 -c "
 
 from Ship import ship
