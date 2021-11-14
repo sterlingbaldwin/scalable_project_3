@@ -6,6 +6,9 @@ __version__ = 1.0
 
 import requests
 import json
+from numpy.random import random
+from time import sleep
+
 
 class station:
     """
@@ -15,10 +18,10 @@ class station:
         location(dict): a dictionary containing the x,y coordinates of the station
         population(int): the size of the stations population, used to determine the rate of message generation
     """
-    def __init__(self, population: int, stationID: str, address: str, port: str) -> None:
+    def __init__(self, population: int, stationId: str, address: str, port: str) -> None:
         self.location = None
         self.population = population
-        self.__id = stationID
+        self.__id = stationId
         self.__simulator_address = address
         self.__port = port
 
@@ -26,6 +29,9 @@ class station:
     
     
     def connect(self):
+        """
+        Register the new station with the simulator
+        """
         url = f"{self.__simulator_address}:{self.__port}/new_entity_connect"
         params = {
             "entity_type": "station",
@@ -35,6 +41,18 @@ class station:
             raise ValueError("Unable to connect to simulator: {res}")
 
         self.loc = tuple(json.loads(res.content)["location"])
+    
+    def run(self):
+        self.connect()
+        while True:
+            sleep(random(.5, 1.5))
+            self.update()
+    
+    def update(self):
+        """
+        Get an update from the simulator
+        """
+        pass
 
     def generate_message(self):
         """

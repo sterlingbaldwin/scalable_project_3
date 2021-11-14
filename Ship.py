@@ -5,6 +5,8 @@ __author__ = "Scalable Module Group 15"
 __version__ = 1.0
 
 import requests
+from time import sleep
+from numpy.random import random
 from typing import List
 
 __COMMUNICATION_RANGE = [100, 1000]
@@ -16,14 +18,22 @@ class ship:
         loc(tuple): x and y cordinate of the Ships
         ShipID(str): the name of the ship
     """
-    def __init__(self, ShipID: str, simulator_address: str) -> None:
-        self.__id = ShipID
+    def __init__(self, shipId: str, simulator_address: str, port: str) -> None:
+        self.__id = shipId
         self.__loc = (0.0, 0.0)
         self.__range = 0
         self.__speed = 0
-        self.__simulator_address = simulator_address
         self.__itinerary = []
+        self.simulator_address = simulator_address
+        self.port = port
         pass
+
+    def run(self):
+        self.connect()
+        while True:
+            sleep(random(.5, 1.5))
+            self.update()
+
 
     def connect(self):
         url = f"{self.__simulator_address}/new_entity_connect"
