@@ -6,7 +6,7 @@ __version__ = 1.0
 
 import requests
 from time import sleep
-from numpy.random import random
+from numpy.random import uniform
 from typing import List
 
 __COMMUNICATION_RANGE = [100, 1000]
@@ -31,7 +31,7 @@ class ship:
     def run(self):
         self.connect()
         while True:
-            sleep(random(.5, 1.5))
+            sleep(uniform(.5, 1.5))
             self.update()
 
 

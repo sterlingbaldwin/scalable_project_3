@@ -6,7 +6,7 @@ __version__ = 1.0
 
 import requests
 import json
-from numpy.random import random
+from numpy.random import uniform
 from time import sleep
 
 
@@ -47,7 +47,7 @@ class station:
     def run(self):
         self.connect()
         while True:
-            sleep(random(.5, 1.5))
+            sleep(uniform(.5, 1.5))
             self.update()
     
     def update(self):
