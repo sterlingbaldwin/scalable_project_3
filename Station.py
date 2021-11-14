@@ -36,11 +36,13 @@ class station:
         params = {
             "entity_type": "station",
             "entity_id": self.__id
-        } 
+        }
+        print("Sending connection request to simulator")
         if (res := requests.get(url, params)).status_code != 200:
             raise ValueError("Unable to connect to simulator: {res}")
-
-        self.loc = tuple(json.loads(res.content)["location"])
+        data = json.loads(res.content)
+        print(f"simulator response {data}")
+        self.loc = tuple(data["location"])
     
     def run(self):
         self.connect()

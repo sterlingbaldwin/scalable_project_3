@@ -2,6 +2,7 @@
 
 cd projects/scalable_project_3
 source venv/bin/activate
+echo "Starting station on $HOSTNAME communicating with $1:$2"
 python3 -c "
 
 from Station import station
