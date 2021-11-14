@@ -63,6 +63,7 @@ def main():
     args = parser.parse_args()
     sim_proc = Process(target=run_simulator, args=(args.size, args.host, args.port))
     sim_proc.start()
+    import ipdb; ipdb.set_trace()
     # sim_proc.join()
 
     setup_stations(args.num_stations, args.host, args.port)
