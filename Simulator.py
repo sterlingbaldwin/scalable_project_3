@@ -37,14 +37,15 @@ class StationRecord:
 
 
 class simulator:
-    def __init__(self, size: int, host:str = "127.0.0.1") -> None:
+    def __init__(self, size: int, host:str = "127.0.0.1", port: str = "5000") -> None:
         print("Initializing the simulator")
         self._world_size = size
         self._app = None
         self._timestep = 0
-        self.host = host
         self._stations = []
         self._ships = []
+        self.host = host
+        self.port = port
 
     def __call__(self):
         self._app = Flask(__name__)
@@ -53,7 +54,7 @@ class simulator:
             name='new_entity_connect',
             handler=self.new_entity_endpoint)
         print(f"Starting the server with address {self.host}")
-        self._app.run(host=self.host)
+        self._app.run(host=self.host, port=self.port)
 
     def add_endpoint(self, endpoint, name, handler):
         self._app.add_url_rule(endpoint, name, EndpointAction(handler))
