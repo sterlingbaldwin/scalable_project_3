@@ -16,10 +16,10 @@ def run_simulator(world_size: int, address: str, port: str):
         port=port)
     sim()
 
-def setup_stations(number, simulator_address, port):
-    for _ in range(number):
+def setup_stations(num_stations: int, address: str, port: str):
+    for _ in range(num_stations):
         address = choice(PI_ADDRESSES)
-        cmd = ["ssh", address, f"'bash ~/projects/scalable_project_3/start_station.sh {simulator_address} {port}'"]
+        cmd = ["ssh", address, f"'bash ~/projects/scalable_project_3/start_station.sh {address} {port}'"]
         proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
         out, err = proc.communicate()
         if err:
@@ -58,7 +58,7 @@ def main():
         default=1,
         help="Number of stations to spawn, default = 1")
     args = parser.parse_args()
-    sim_proc = Process(target=run_simulator, args=(args.size, args.host))
+    sim_proc = Process(target=run_simulator, args=(args.size, args.host, args.port))
     sim_proc.start()
     sim_proc.join()
 
