@@ -36,7 +36,7 @@ class ship:
 
 
     def connect(self):
-        url = f"{self.__simulator_address}/new_entity_connect"
+        url = f"http://{self.__simulator_address}/new_entity_connect"
         params = {
             "entity_type": "ship",
             "entity_id": self.id

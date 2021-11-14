@@ -32,7 +32,7 @@ class station:
         """
         Register the new station with the simulator
         """
-        url = f"{self.__simulator_address}:{self.__port}/new_entity_connect"
+        url = f"http://{self.__simulator_address}:{self.__port}/new_entity_connect"
         params = {
             "entity_type": "station",
             "entity_id": self.__id
