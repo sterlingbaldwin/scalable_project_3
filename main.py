@@ -32,8 +32,10 @@ def setup_stations(num_stations: int, address: str, port: str):
         cmd = f'bash ~/projects/scalable_project_3/start_station.sh {address} {port}'
         (_, stdout, stderr) = client.exec_command(cmd)
         
-        print(stderr.decode('utf-8'))
-        print(stdout.decode('utf-8'))
+        for line in stderr.readlines():
+            print(line)
+        for line in stdout.readlines():
+            print(line)
 
 def setup_ships(number):
     pass
