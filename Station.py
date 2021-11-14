@@ -65,7 +65,7 @@ class station:
         return self.location
 
     @loc.setter
-    def loc(self, inp: tuple[float]):
+    def loc(self, inp: tuple):
         """Setter fuction for the location property
 
         Args:
