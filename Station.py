@@ -1,9 +1,11 @@
 #! ./.venv/bin/python
 
-__title__ = "Ships"
+__title__ = "Station"
 __author__ = "Scalable Module Group 15"
 __version__ = 1.0
 
+import requests
+import json
 
 class station:
     """
@@ -13,13 +15,27 @@ class station:
         location(dict): a dictionary containing the x,y coordinates of the station
         population(int): the size of the stations population, used to determine the rate of message generation
     """
-    def __init__(self, location: tuple, population: int, stationID: str) -> None:
-        if len(location) != 2:
-            raise ValueError('location must be in the form of x,y')
-        self.location = location
+    def __init__(self, population: int, stationID: str, address: str, port: str) -> None:
+        self.location = None
         self.population = population
-        self._id = stationID
+        self.__id = stationID
+        self.__simulator_address = address
+        self.__port = port
+
+        print(f"Initializing new station: {self}")
     
+    
+    def connect(self):
+        url = f"{self.__simulator_address}:{self.__port}/new_entity_connect"
+        params = {
+            "entity_type": "station",
+            "entity_id": self.__id
+        } 
+        if (res := requests.get(url, params)).status_code != 200:
+            raise ValueError("Unable to connect to simulator: {res}")
+
+        self.loc = tuple(json.loads(res.content)["location"])
+
     def generate_message(self):
         """
         Generate a new message
@@ -41,3 +57,12 @@ class station:
             self.location = inp
         else:
             raise ValueError('Input type expected in the form of x,y')
+    
+    def __str__(self):
+        return str({
+            "location": self.location,
+            "population": self.population,
+            "id": self.__id,
+            "simulator_address": self.__simulator_address,
+            "simulator_port": self.__port
+        })
