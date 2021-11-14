@@ -7,10 +7,11 @@ python3 -c "
 
 from Station import station
 from numpy.random import uniform
+from numpy import round
 from uuid import uuid4
 
 s = station(
-    population=uniform(10, 100_00),
+    population=round(uniform(10, 100_00)),
     stationId=uuid4().hex, 
     address='$1',
     port='$2')

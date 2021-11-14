@@ -39,7 +39,7 @@ class station:
         }
         print(f"Sending connection request to simulator on url {url}")
         if (res := requests.get(url, params)).status_code != 200:
-            raise ValueError("Unable to connect to simulator: {res}")
+            raise ValueError(f"Unable to connect to simulator: {res}")
         data = json.loads(res.content)
         print(f"simulator response {data}")
         self.loc = tuple(data["location"])
