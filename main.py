@@ -6,7 +6,8 @@ from subprocess import Popen, PIPE
 from Simulator import simulator
 
 
-PI_ADDRESSES = ["10.35.70.29", "10.35.70.20"]
+# PI_ADDRESSES = ["10.35.70.29", "10.35.70.20"]
+PI_ADDRESSES = ["10.35.70.29"]
 
 
 def run_simulator(world_size: int, address: str, port: str):
