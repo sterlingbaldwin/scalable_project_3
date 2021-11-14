@@ -21,6 +21,8 @@ The purpose of this project is to simulate sending email (space mail) between en
 	* Ships: These carry messages between stations, and exchange them with other ships.
 	* Physics Simulator: In the real world we would call this base reality, however since were not actually sending email to Neptune we’ve gotta simulate it somehow. The physics simulator keeps track of the global state of the system, and mediates communication between the other entities.
 
+Each of the entities exists in a sepperates process, and must use HTTP to communicate. The entities will be spread over the available raspberry pis. Although we only have two pis to work with, the design should work with any number. During initialization, the simulator is created first, and sits waiting for entities to connect to it. As each ship and station is instantiated, it will reach out to the simulator to register its existance.
+
 ## Message
 
 The message object is our atomic data unit and consists of the following:
@@ -58,4 +60,14 @@ The simulation of base reality. This will keep track of all the locations of the
     * A list of ships
 
 At each time step, the simulator will iterate over all the ships, and determine if they're in communication range with any other ships or stations. 
-	
+
+### API
+
+	ENDPOINT: /new_entity_connect
+	PARAMS: entity_type: either "ship" or "station"
+			entity_id: a unique ID for this entity
+	RETURNS: location: tuple, the x and y position of the new entity
+
+	This endpoint should be used by all new entities when they're instantiated to register with
+	the simulator. The simulator will then response with their location. If its a station, a random
+	location will be chosen. If its a ship, then if there are stations available, it will be spawned at one of them, otherwise it will be placed randomly.
