@@ -17,9 +17,12 @@ def run_simulator(world_size: int, address: str, port: str):
     sim()
 
 def setup_stations(num_stations: int, address: str, port: str):
+    print("Starting station setup")
     for _ in range(num_stations):
         address = choice(PI_ADDRESSES)
+        print(f"starting new station on {address}")
         cmd = ["ssh", address, f"'bash ~/projects/scalable_project_3/start_station.sh {address} {port}'"]
+        print(f"running: {cmd}")
         proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
         out, err = proc.communicate()
         if err:
