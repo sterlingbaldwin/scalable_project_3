@@ -4,6 +4,7 @@ __title__ = "Ships"
 __author__ = "Scalable Module Group 15"
 __version__ = 1.0
 
+import requests
 from typing import List
 
 __COMMUNICATION_RANGE = [100, 1000]
@@ -15,13 +16,31 @@ class ship:
         loc(tuple): x and y cordinate of the Ships
         ShipID(str): the name of the ship
     """
-    def __init__(self, ShipID: str) -> None:
-        self._id = ShipID
+    def __init__(self, ShipID: str, simulator_address: str) -> None:
+        self.__id = ShipID
         self.__loc = (0.0, 0.0)
         self.__range = 0
         self.__speed = 0
-        self.itinerary = []
+        self.__simulator_address = simulator_address
+        self.__itinerary = []
         pass
+
+    def connect(self):
+        url = f"{self.__simulator_address}/new_entity_connect"
+        params = {
+            "entity_type": "ship",
+            "entity_id": self.id
+        } 
+        if (res := requests.get(url, params)).status_code != 200:
+            raise ValueError("Unable to connect to simulator: {res}")
+
+    @property
+    def id(self):
+        return self.__id
+
+    @property
+    def itinerary(self):
+        return self.__itinerary
 
     @property
     def loc(self):
@@ -62,7 +81,7 @@ class ship:
     
     @property
     def speed(self):
-        return str(self.__speed) + 'm/hr'
+        return str(self.__speed) + 'm/s'
     
     @speed.setter
     def speed(self, inp: float):
