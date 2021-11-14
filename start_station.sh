@@ -11,7 +11,7 @@ from uuid import uuid4
 
 s = station(
     population=uniform(10, 100_00),
-    stationId=uuid4.hex(), 
+    stationId=uuid4().hex, 
     address='$1',
     port='$2')
 s.run()
