@@ -4,13 +4,12 @@ import argparse
 import paramiko
 from random import choice
 from multiprocessing import Process
-from subprocess import Popen, PIPE
 from Simulator import simulator
 
 
 # PI_ADDRESSES = ["10.35.70.29", "10.35.70.20"]
 PI_ADDRESSES = ["10.35.70.29"]
-SSH_KEY = "~/.ssh/id_rsa.pub"
+SSH_KEY = f"{os.environ['HOME']}/.ssh/id_rsa.pub"
 USER = os.environ['USER']
 
 
