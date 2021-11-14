@@ -62,7 +62,7 @@ class ship:
         return self.__loc
     
     @loc.setter
-    def loc(self, inp: tuple[float]):
+    def loc(self, inp: tuple):
         """Setter fuction for the location property
 
         Args:
