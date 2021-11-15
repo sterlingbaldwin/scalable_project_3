@@ -1,12 +1,8 @@
 import os
 import paramiko
 import argparse
-import time
 from random import choice
 from uuid import uuid4
-import select
-
-from requests.models import cookiejar_from_dict
 
 PI_ADDRESSES = ["10.35.70.29", "10.35.70.30"]
 # PI_ADDRESSES = ["127.0.0.1"]
@@ -20,6 +16,7 @@ def setup_stations(num_stations: int, server_address: str, port: str, logdir: st
     for _ in range(num_stations):
         station_address = choice(PI_ADDRESSES)
         station_id = uuid4().hex
+
         cmd = f'python ~/projects/scalable_project_3/start_station.py {server_address} {port} {station_id} > {logdir}/{station_id}.out 2>&1'
 
         new_client = paramiko.SSHClient()
@@ -57,6 +54,8 @@ def main():
         default="station_logs",
         help="directory of where to store the station output")
     args = parser.parse_args()
+    if not os.path.exists(args.log):
+        os.mkdir(args.log)
     setup_stations(
         num_stations=args.num_stations,
         server_address=args.host,
