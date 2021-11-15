@@ -24,6 +24,32 @@ The purpose of this project is to simulate sending email (space mail) between en
 
 Each of the entities exists in a sepperates process, and must use HTTP to communicate. The entities will be spread over the available raspberry pis. Although we only have two pis to work with, the design should work with any number. During initialization, the simulator is created first, and sits waiting for entities to connect to it. As each ship and station is instantiated, it will reach out to the simulator to register its existance.
 
+Each entity will have its own timer and update cycle of some constant ```alpha + uniform(0., beta)```, and during its update will perform the following actions:
+
+	1. Send an update message to the simulator with its ID, and speed vector. The simulator will respond with the computed new position from the time delta from last update and the speed. The simulator will also include any messages sent to the craft from other entities since its last update.
+
+		API: update(src_id, speed, entity_time) -> new_position, messages[List]
+
+	2. If the messages include any message_carry requests, it will send the requested messages.
+
+		API: message_carry_response(src_id, dst_id, messages[List])
+
+	3. The craft will send a radar update request to the simulator, where it will be told of any other craft in radar range. The simulator will respond with the ranges to other entities, and the craft then decides if it should attempt to communicate with them based on its transmission range.
+
+		API: radar_ping(src_id) -> entitys[List]
+
+	4. Given the results of the radar update, for any new craft in range, the craft will send handshake messages to the simulator bound for the other craft, which they will recieve during their update.
+
+		API: syn(src_id, dst_id) -> void
+
+	5. If the craft just recieved the handshake response from another craft, it will now transmit the destination list of its message buffer along with its itinerary.
+
+		API: ack(src_id, dst_id, itinerary[List]) -> void
+
+	6. If the craft just recieved a destination list of other entities messages buffers, it will check its itinerary, and if its going to be visiting any of the destinations before the other craft (or some other heuristic, for example if it will be getting closer but not actually going to a destination it might request those messages, assuming it'll bump into another craft it can), will transmit which messages its willing to carry. 
+
+		API: message_carry_request(src_id, dst_id, messages[List]) -> void
+
 ## Message
 
 The message object is our atomic data unit and consists of the following:
@@ -62,13 +88,81 @@ The simulation of base reality. This will keep track of all the locations of the
 
 At each time step, the simulator will iterate over all the ships, and determine if they're in communication range with any other ships or stations. 
 
-### API
+# API
 
+### new_entity_connect
 	ENDPOINT: /new_entity_connect
-	PARAMS: entity_type: either "ship" or "station"
+	PARAMS: 
+			entity_type: either "ship" or "station"
 			entity_id: a unique ID for this entity
-	RETURNS: location: tuple, the x and y position of the new entity
+	RETURNS: 
+			location: tuple, the x and y position of the new entity
 
 	This endpoint should be used by all new entities when they're instantiated to register with
 	the simulator. The simulator will then response with their location. If its a station, a random
 	location will be chosen. If its a ship, then if there are stations available, it will be spawned at one of them, otherwise it will be placed randomly.
+
+
+### update
+	ENDPOINT: /update
+	PARAMS: 
+			src_id: the entities UUID
+			speed: the velocity vector of the entity
+	RETURNS: 
+			location: the new position of the craft
+			messages: a list of message objects
+
+	This is the start of an entities update cycle. It sends to the simulator its speed, and gets its updated position and any messages that are bound for it.
+
+
+### ping
+	ENDPOINT: /ping
+	PARAMS: 
+			src_id: the source entity UUID
+			location: the source location
+	RETURNS:
+			entitys[List]: a list of UUIDs of any entities in radar range
+
+
+### syn
+	ENDPOINT: /syn
+	PARAMS:
+			src_id: the source entity UUID
+			dst_id: the destination entity UUID
+	RETURNS:
+			void
+
+	This is the endpoint used by an entity to establish a communication channel with another entity
+
+
+### ack
+	ENDPOINT: /ack
+	PARAMS:
+			src_id: the source entity UUID
+			dst_id: the destination entity UUID
+			itinerary[List]: the list of locations the entity is planning on visiting
+	RETURNS:
+			void
+	
+	After recieving a "syn" message from another craft, each entity will respond with an "ack" along with the list of locations its going to be visiting in the future.
+
+
+### message_carry_request
+	ENDPOINT: /message_carry_request
+	PARAMS:
+			src_id: the source entity UUID
+			dst_id: the destination entity UUID
+			messages[List]: the UUIDs of the messages the entity is willing to carry
+	
+	After opening a commuinication channel with another craft, and recieving the other entities itinerary, the craft will send a request to the other entity requesting that it carry any messages its holding that are bound for destinations on its itinerary.
+
+### message_carry_response
+	ENDPOIND: /message_carry_reponse
+	PARAMS:
+			src_id: the source entity UUID
+			dst_id: the destination entity UUID
+			messages[List]: a list of message that the source wants to have the destination carry for it
+	RETURNS:
+			void
+	
+	This is the response to being send a message asking to carry other messages
