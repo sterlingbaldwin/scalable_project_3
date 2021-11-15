@@ -1,6 +1,7 @@
 import os
 import paramiko
 import argparse
+from pathlib import Path
 from random import choice
 from uuid import uuid4
 
@@ -17,7 +18,7 @@ def setup_stations(num_stations: int, server_address: str, port: str, logdir: st
         station_address = choice(PI_ADDRESSES)
         station_id = uuid4().hex
 
-        cmd = f'python ~/projects/scalable_project_3/start_station.py {server_address} {port} {station_id} > {logdir}/{station_id}.out 2>&1'
+        cmd = f'python ~/projects/scalable_project_3/start_station.py {server_address} {port} {station_id} > {Path(logdir).absolute}/{station_id}.out 2>&1'
 
         new_client = paramiko.SSHClient()
         new_client.load_system_host_keys()
