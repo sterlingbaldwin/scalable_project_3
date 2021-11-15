@@ -6,6 +6,8 @@ from random import choice
 from uuid import uuid4
 import select
 
+from requests.models import cookiejar_from_dict
+
 PI_ADDRESSES = ["10.35.70.29", "10.35.70.30"]
 # PI_ADDRESSES = ["127.0.0.1"]
 
@@ -61,7 +63,7 @@ def setup_stations(num_stations: int, server_address: str, port: str):
         new_client.connect(station_address, username=USER, key_filename=SSH_KEY)
 
         print(f"executing command: {cmd}")
-        ssh_connections[station_address].exec_command(cmd)
+        new_client.exec_command(cmd)
         print(f"Finished setting up station on {station_address}")
 
     return ssh_connections
