@@ -17,7 +17,6 @@ class EndpointAction:
         self.response = None
 
     def __call__(self, *args):
-        print(f"got a new entity connection request with info {request}")
         self.response = self.action(request)
         return self.response
 
