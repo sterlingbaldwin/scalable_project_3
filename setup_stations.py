@@ -37,23 +37,28 @@ def setup_stations(num_stations: int, server_address: str, port: str):
         station_id = uuid4().hex
         cmd = f'python ~/projects/scalable_project_3/start_station.py {server_address} {port} {station_id} > {station_id}.out 2>&1'
 
-        if not (new_client := ssh_connections.get(station_address)):
-            print(f"starting new station on device {station_address}")
-            new_client = paramiko.SSHClient()
-            new_client.load_system_host_keys()
-            new_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            new_client.connect(station_address, username=USER, key_filename=SSH_KEY)
+        # if not (new_client := ssh_connections.get(station_address)):
+        #     print(f"starting new station on device {station_address}")
+        #     new_client = paramiko.SSHClient()
+        #     new_client.load_system_host_keys()
+        #     new_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        #     new_client.connect(station_address, username=USER, key_filename=SSH_KEY)
 
-            channel = new_client.get_transport().open_session()
-            pty = channel.get_pty()
-            shell = new_client.invoke_shell()
+        #     channel = new_client.get_transport().open_session()
+        #     pty = channel.get_pty()
+        #     shell = new_client.invoke_shell()
             
 
-            transport = new_client.get_transport()
-            channel = transport.open_session()
-            ssh_connections[station_address] = channel
-        else:
-            print(f"Using previously established connection {station_address}")
+        #     transport = new_client.get_transport()
+        #     channel = transport.open_session()
+        #     ssh_connections[station_address] = channel
+        # else:
+        #     print(f"Using previously established connection {station_address}")
+
+        new_client = paramiko.SSHClient()
+        new_client.load_system_host_keys()
+        new_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        new_client.connect(station_address, username=USER, key_filename=SSH_KEY)
 
         print(f"executing command: {cmd}")
         ssh_connections[station_address].exec_command(cmd)
