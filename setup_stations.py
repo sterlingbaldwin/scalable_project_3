@@ -46,7 +46,7 @@ def main():
     args = parser.parse_args()
     setup_stations(
         num_stations=args.num_stations,
-        address=args.host,
+        num_stations=args.host,
         port=args.port)
 
 if __name__ == "__main__":
