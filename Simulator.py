@@ -10,9 +10,6 @@ from flask.json import dumps
 from numpy.random import uniform, choice
 from dataclasses import dataclass
 
-from Ship import ship
-from Station import station
-
 class EndpointAction:
 
     def __init__(self, action):

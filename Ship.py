@@ -41,8 +41,10 @@ class ship:
             "entity_type": "ship",
             "entity_id": self.id
         } 
-        if (res := requests.get(url, params)).status_code != 200:
-            raise ValueError("Unable to connect to simulator: {res}")
+        session = requests.Session()
+        session.trust_env = False
+        if (res := session.get(url, params)).status_code != 200:
+            raise ValueError(f"Unable to connect to simulator: {res}")
 
     @property
     def id(self):
