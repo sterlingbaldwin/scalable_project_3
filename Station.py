@@ -5,6 +5,7 @@ __author__ = "Scalable Module Group 15"
 __version__ = 1.0
 
 import requests
+import urllib
 import json
 from numpy.random import uniform
 from time import sleep
@@ -32,15 +33,18 @@ class station:
         """
         Register the new station with the simulator
         """
-        url = f"http://{self.__simulator_address}:{self.__port}/new_entity_connect"
         params = {
             "entity_type": "station",
             "entity_id": self.__id
         }
+        url = f"http://{self.__simulator_address}:{self.__port}/new_entity_connect{urllib.urlencode(params)}"
         print(f"Sending connection request to simulator on url {url}")
         session = requests.Session()
         session.trust_env = False
-        if (res := session.get(url, params)).status_code != 200:
+
+        req = session.prepare_request(requests.Request('GET', url))
+
+        if (res := session.send(req)).status_code != 200:
             raise ValueError(f"Unable to connect to simulator: {res}")
         
         data = json.loads(res.content)
