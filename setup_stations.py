@@ -3,7 +3,7 @@ import paramiko
 import argparse
 import time
 from random import choice
-from multiprocessing import Process
+from uuid import uuid4
 import select
 
 # PI_ADDRESSES = ["10.35.70.29", "10.35.70.30"]
@@ -30,13 +30,12 @@ def setup_stations(num_stations: int, server_address: str, port: str):
     print("Starting station setup")
 
     station_address = choice(PI_ADDRESSES)
-    station_processes = {}
     ssh_connections = {}
-    workers = {}
     for _ in range(num_stations):
-        import ipdb; ipdb.set_trace()
+        # import ipdb; ipdb.set_trace()
         station_address = choice(PI_ADDRESSES)
-        cmd = f'python ~/projects/scalable_project_3/start_station.py {server_address} {port} > /dev/null 2>&1'
+        station_id = uuid4().hex
+        cmd = f'python ~/projects/scalable_project_3/start_station.py {server_address} {port} {station_id} > {station_id}.out 2>&1'
 
         if not (new_client := ssh_connections.get(station_address)):
             print(f"starting new station on device {station_address}")
@@ -44,6 +43,12 @@ def setup_stations(num_stations: int, server_address: str, port: str):
             new_client.load_system_host_keys()
             new_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             new_client.connect(station_address, username=USER, key_filename=SSH_KEY)
+
+            channel = new_client.get_transport().open_session()
+            pty = channel.get_pty()
+            shell = new_client.invoke_shell()
+            
+
             transport = new_client.get_transport()
             channel = transport.open_session()
             ssh_connections[station_address] = channel
@@ -51,13 +56,10 @@ def setup_stations(num_stations: int, server_address: str, port: str):
             print(f"Using previously established connection {station_address}")
 
         print(f"executing command: {cmd}")
-        (_, stdout, stderr) = ssh_connections[station_address].exec_command(cmd)
-        print("Reading output from master")
+        ssh_connections[station_address].exec_command(cmd)
+        print(f"Finished setting up station on {station_address}")
 
-        workers[station_address] = worker(stdout, stderr)
-        print("Finished reading output from master")
-
-
+    return ssh_connections
     
         # for line in stderr.readlines():
         #     print(line)
