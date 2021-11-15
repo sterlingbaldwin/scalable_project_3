@@ -6,8 +6,8 @@ from random import choice
 from uuid import uuid4
 import select
 
-# PI_ADDRESSES = ["10.35.70.29", "10.35.70.30"]
-PI_ADDRESSES = ["127.0.0.1"]
+PI_ADDRESSES = ["10.35.70.29", "10.35.70.30"]
+# PI_ADDRESSES = ["127.0.0.1"]
 
 SSH_KEY = f"{os.environ['HOME']}/.ssh/id_rsa.pub"
 USER = os.environ['USER']
