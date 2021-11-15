@@ -52,7 +52,7 @@ class station:
             raise ValueError(f"Unable to connect to simulator: {request}")
         return request
     
-    def connect(self):
+    def new_entity_connect(self):
         """
         Register the new station with the simulator
         """
@@ -60,7 +60,7 @@ class station:
             "entity_type": "station",
             "entity_id": self.__id
         }
-        res = self.make_get_request("connect", params)
+        res = self.make_get_request("new_entity_connect", params)
         data = json.loads(res.content)
         print(f"simulator response {data}")
 

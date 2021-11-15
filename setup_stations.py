@@ -32,9 +32,9 @@ def setup_stations(num_stations: int, server_address: str, port: str):
     ssh_connections = {}
     workers = {}
     for _ in range(num_stations):
-        import ipdb; ipdb.set_trace()
+        # import ipdb; ipdb.set_trace()
         station_address = choice(PI_ADDRESSES)
-        cmd = f'bash ~/projects/scalable_project_3/start_station.sh {server_address} {port}'
+        cmd = f'bash ~/projects/scalable_project_3/start_station.sh {server_address} {port} &'
 
         if not (new_client := ssh_connections.get(station_address)):
             print(f"starting new station on device {station_address}")
@@ -54,10 +54,10 @@ def setup_stations(num_stations: int, server_address: str, port: str):
         print("Finished reading output from master")
 
 
-        for line in stderr.readlines():
-            print(line)
-        for line in stdout.readlines():
-            print(line)
+        # for line in stderr.readlines():
+        #     print(line)
+        # for line in stdout.readlines():
+        #     print(line)
 
 def main():
     parser = argparse.ArgumentParser(
