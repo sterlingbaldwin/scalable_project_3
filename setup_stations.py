@@ -10,16 +10,23 @@ USER = os.environ['USER']
 
 def setup_stations(num_stations: int, server_address: str, port: str):
     print("Starting station setup")
+
+    station_address = choice(PI_ADDRESSES)
+    ssh_connections = []
     for _ in range(num_stations):
-        station_address = choice(PI_ADDRESSES)
-        print(f"starting new station on device {station_address}")
-        client = paramiko.SSHClient()
-        client.load_system_host_keys()
-        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect(station_address, username=USER, key_filename=SSH_KEY)
-        cmd = f'bash ~/projects/scalable_project_3/start_station.sh {server_address} {port}'
-        (_, stdout, stderr) = client.exec_command(cmd)
-        
+        import ipdb; ipdb.set_trace()
+        if (station_address := choice(PI_ADDRESSES) == station_address):
+            print(f"Using previously established connection {station_address}")
+            print(f"starting new station on device {station_address}")
+            client = paramiko.SSHClient()
+            client.load_system_host_keys()
+            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            client.connect(station_address, username=USER, key_filename=SSH_KEY)
+            ssh_connections.append(client)
+
+        cmd = f'bash ~/projects/scalable_project_3/start_station.sh {server_address} {port} &'
+        (_, stdout, stderr) = ssh_connections[station_address].exec_command(cmd)
+    
         for line in stderr.readlines():
             print(line)
         for line in stdout.readlines():
