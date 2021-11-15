@@ -1,44 +1,6 @@
 import sys
-import os
 import argparse
-import paramiko
-from random import choice
-from multiprocessing import Process
 from Simulator import simulator
-
-
-# PI_ADDRESSES = ["10.35.70.29", "10.35.70.20"]
-PI_ADDRESSES = ["10.35.70.29"]
-SSH_KEY = f"{os.environ['HOME']}/.ssh/id_rsa.pub"
-USER = os.environ['USER']
-
-
-def run_simulator(world_size: int, address: str, port: str):
-    sim = simulator(
-        size=world_size,
-        host=address,
-        port=port)
-    sim()
-
-def setup_stations(num_stations: int, address: str, port: str):
-    print("Starting station setup")
-    for _ in range(num_stations):
-        address = choice(PI_ADDRESSES)
-        print(f"starting new station on {address}")
-        client = paramiko.SSHClient()
-        client.load_system_host_keys()
-        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect(address, username=USER, key_filename=SSH_KEY)
-        cmd = f'bash ~/projects/scalable_project_3/start_station.sh {address} {port}'
-        (_, stdout, stderr) = client.exec_command(cmd)
-        
-        for line in stderr.readlines():
-            print(line)
-        for line in stdout.readlines():
-            print(line)
-
-def setup_ships(number):
-    pass
 
 def main():
     parser = argparse.ArgumentParser(
@@ -74,12 +36,6 @@ def main():
         host=args.host,
         port=args.port)
     sim()
-    # sim_proc = Process(target=run_simulator, args=(args.size, args.host, args.port))
-    # sim_proc.start()
-    # import ipdb; ipdb.set_trace()
-    # sim_proc.join()
-
-    # setup_stations(args.num_stations, args.host, args.port)
     
 
 if __name__ == "__main__":
