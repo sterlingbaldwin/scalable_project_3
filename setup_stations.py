@@ -66,12 +66,7 @@ def setup_stations(num_stations: int, server_address: str, port: str):
         new_client.exec_command(cmd)
         print(f"Finished setting up station on {station_address}")
 
-    return ssh_connections
-    
-        # for line in stderr.readlines():
-        #     print(line)
-        # for line in stdout.readlines():
-        #     print(line)
+    return
 
 def main():
     parser = argparse.ArgumentParser(
@@ -92,8 +87,7 @@ def main():
         default=1,
         help="Number of stations to spawn, default = 1")
     args = parser.parse_args()
-
-    station_processes = setup_stations(
+    setup_stations(
         num_stations=args.num_stations,
         server_address=args.host,
         port=args.port)
