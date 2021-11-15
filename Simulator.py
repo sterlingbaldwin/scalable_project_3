@@ -108,7 +108,7 @@ class simulator:
 
     def update(self, request):
         print(f"update with {request}")
-        res = Response(response=f"", status=400)
+        res = Response(response=f"thanks for the update!", status=200)
         return res
 
     def new_entity_connect(self, request):

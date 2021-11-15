@@ -49,7 +49,7 @@ class station:
         session.trust_env = False
         request = session.prepare_request(requests.Request('GET', url))
         if (request := session.send(request)).status_code != 200:
-            raise ValueError(f"Unable to connect to simulator: {request}")
+            raise ValueError(f"Error from the simulator: {request} from request: {url}")
         return request
     
     def new_entity_connect(self):
