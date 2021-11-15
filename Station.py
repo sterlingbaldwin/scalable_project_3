@@ -44,7 +44,7 @@ class station:
         if params:
             url += f"?{urllib.parse.urlencode(params)}"
         
-        print(f"Sending connection request to simulator on url {url}")
+        print(f"Sending get request: {url}")
         session = requests.Session()
         session.trust_env = False
         request = session.prepare_request(requests.Request('GET', url))
@@ -91,7 +91,7 @@ class station:
             # it wasnt json data
             print(res.content)
         else:
-            print(data)
+            print(data.decode('utf-8'))
         pass
 
     def generate_message(self):

@@ -112,7 +112,7 @@ class simulator:
         return res
 
     def new_entity_connect(self, request):
-        print(f"got a new entity connection request with info {request}")
+        # print(f"got a new entity connection request with info {request}")
         res = None
         entity_type = request.args.get('entity_type')
         entity_id = request.args.get('entity_id')
