@@ -37,7 +37,7 @@ class station:
             "entity_type": "station",
             "entity_id": self.__id
         }
-        url = f"http://{self.__simulator_address}:{self.__port}/new_entity_connect{urllib.parse.urlencode(params)}"
+        url = f"http://{self.__simulator_address}:{self.__port}/new_entity_connect/{urllib.parse.urlencode(params)}"
         print(f"Sending connection request to simulator on url {url}")
         session = requests.Session()
         session.trust_env = False
