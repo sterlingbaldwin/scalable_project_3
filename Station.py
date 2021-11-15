@@ -68,7 +68,7 @@ class station:
     
     def run(self):
         print("connecting to the server")
-        self.connect()
+        self.new_entity_connect()
         while True:
             sleep(uniform(.5, 1.5))
             print("starting update")
