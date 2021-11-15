@@ -17,6 +17,7 @@ class EndpointAction:
         self.response = None
 
     def __call__(self, *args):
+        print(f"got a new entity connection request with info {request}")
         self.response = self.action(request)
         return self.response
 
@@ -49,14 +50,68 @@ class simulator:
         self.add_endpoint(
             endpoint='/new_entity_connect', 
             name='new_entity_connect',
-            handler=self.new_entity_endpoint)
+            handler=self.new_entity_connect)
+        self.add_endpoint(
+            endpoint='/update', 
+            name='update',
+            handler=self.update)
+        self.add_endpoint(
+            endpoint='/ping', 
+            name='ping',
+            handler=self.ping)
+        self.add_endpoint(
+            endpoint='/syn', 
+            name='syn',
+            handler=self.syn)
+        self.add_endpoint(
+            endpoint='/ack', 
+            name='ack',
+            handler=self.ack)
+        self.add_endpoint(
+            endpoint='/message_carry_request', 
+            name='message_carry_request',
+            handler=self.message_carry_request)
+        self.add_endpoint(
+            endpoint='/message_carry_reponse', 
+            name='message_carry_reponse',
+            handler=self.message_carry_reponse)
         print(f"Starting the server with address {self.host}")
         self._app.run(host=self.host, port=self.port)
 
     def add_endpoint(self, endpoint, name, handler):
         self._app.add_url_rule(endpoint, name, EndpointAction(handler))
+    
+    def message_carry_reponse(self, request):
+        print(f"message_carry_reponse with {request}")
+        res = Response(response=f"", status=400)
+        return res
 
-    def new_entity_endpoint(self, request):
+    def message_carry_request(self, request):
+        print(f"message_carry_request with {request}")
+        res = Response(response=f"", status=400)
+        return res
+
+    def ack(self, request):
+        print(f"ack with {request}")
+        res = Response(response=f"", status=400)
+        return res
+
+    def syn(self, request):
+        print(f"syn with {request}")
+        res = Response(response=f"", status=400)
+        return res
+
+    def ping(self, request):
+        print(f"ping with {request}")
+        res = Response(response=f"", status=400)
+        return res
+
+    def update(self, request):
+        print(f"update with {request}")
+        res = Response(response=f"", status=400)
+        return res
+
+    def new_entity_connect(self, request):
         print(f"got a new entity connection request with info {request}")
         res = None
         entity_type = request.args.get('entity_type')
