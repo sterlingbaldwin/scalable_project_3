@@ -4,9 +4,11 @@ __title__ = "Station"
 __author__ = "Scalable Module Group 15"
 __version__ = 1.0
 
+from typing import Dict, List
 import requests
 import urllib
 import json
+from datetime import datetime
 from numpy.random import uniform
 from time import sleep
 
@@ -28,6 +30,27 @@ class station:
 
         print(f"Initializing new station: {self}")
     
+    def make_get_request(self, endpoint: str, params: Dict):
+        """
+        Make an API request to the simulation server on the redefined port
+        Parameters:
+            endpoint(str): the path relative the server
+            params(Dict): a dict of key,value parameters which will be url encoded
+        Returns:
+            request(requests.Request): the response from the server
+        """
+        request = None
+        url = f"http://{self.__simulator_address}:{self.__port}/{endpoint}"
+        if params:
+            url += f"?{urllib.parse.urlencode(params)}"
+        
+        print(f"Sending connection request to simulator on url {url}")
+        session = requests.Session()
+        session.trust_env = False
+        request = session.prepare_request(requests.Request('GET', url))
+        if (request := session.send(request)).status_code != 200:
+            raise ValueError(f"Unable to connect to simulator: {request}")
+        return request
     
     def connect(self):
         """
@@ -37,18 +60,10 @@ class station:
             "entity_type": "station",
             "entity_id": self.__id
         }
-        url = f"http://{self.__simulator_address}:{self.__port}/new_entity_connect?{urllib.parse.urlencode(params)}"
-        print(f"Sending connection request to simulator on url {url}")
-        session = requests.Session()
-        session.trust_env = False
-
-        req = session.prepare_request(requests.Request('GET', url))
-
-        if (res := session.send(req)).status_code != 200:
-            raise ValueError(f"Unable to connect to simulator: {res}")
-        
+        res = self.make_get_request("connect", params)
         data = json.loads(res.content)
         print(f"simulator response {data}")
+
         self.loc = tuple(data["location"])
     
     def run(self):
@@ -56,11 +71,20 @@ class station:
         while True:
             sleep(uniform(.5, 1.5))
             self.update()
-    
+
     def update(self):
         """
         Get an update from the simulator
         """
+        now = datetime.now().strftime('%H:%M:%S')
+        print(f"hello: its {now}")
+        params = {
+            "entity_id": self.__id,
+            "time": now
+        }
+        res = self.make_get_request("update", params)
+        data = json.loads(res.content)
+        print(data)
         pass
 
     def generate_message(self):
