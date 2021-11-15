@@ -16,14 +16,15 @@ def setup_stations(num_stations: int, server_address: str, port: str):
     for _ in range(num_stations):
         import ipdb; ipdb.set_trace()
         station_address = choice(PI_ADDRESSES)
-        if (new_client := ssh_connections.get(station_address)):
+        if not (new_client := ssh_connections.get(station_address)):
+
             print(f"Using previously established connection {station_address}")
             print(f"starting new station on device {station_address}")
             new_client = paramiko.SSHClient()
             new_client.load_system_host_keys()
             new_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             new_client.connect(station_address, username=USER, key_filename=SSH_KEY)
-            ssh_connections.append(new_client)
+            ssh_connections[station_address] = new_client
 
         cmd = f'bash ~/projects/scalable_project_3/start_station.sh {server_address} {port} &'
         (_, stdout, stderr) = ssh_connections[station_address].exec_command(cmd)
