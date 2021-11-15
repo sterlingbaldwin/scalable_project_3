@@ -70,7 +70,7 @@ class station:
         print("connecting to the server")
         self.new_entity_connect()
         while True:
-            sleep(uniform(.5, 1.5))
+            sleep(uniform(1.5, 2.5))
             print("starting update")
             self.update()
 
@@ -85,8 +85,13 @@ class station:
             "time": now
         }
         res = self.make_get_request("update", params)
-        data = json.loads(res.content)
-        print(data)
+        try:
+            data = json.loads(res.content)
+        except Exception as e:
+            # it wasnt json data
+            print(res.content)
+        else:
+            print(data)
         pass
 
     def generate_message(self):
