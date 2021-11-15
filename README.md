@@ -26,29 +26,23 @@ Each of the entities exists in a sepperates process, and must use HTTP to commun
 
 Each entity will have its own timer and update cycle of some constant ```alpha + uniform(0., beta)```, and during its update will perform the following actions:
 
-	1. Send an update message to the simulator with its ID, and speed vector. The simulator will respond with the computed new position from the time delta from last update and the speed. The simulator will also include any messages sent to the craft from other entities since its last update.
+1. Send an update message to the simulator with its ID, and speed vector. The simulator will respond with the computed new position from the time delta from last update and the speed. The simulator will also include any messages sent to the craft from other entities since its last update.
 
-		API: update(src_id, speed, entity_time) -> new_position, messages[List]
+2. If the messages include any message_carry requests, it will send the requested messages.
 
-	2. If the messages include any message_carry requests, it will send the requested messages.
 
-		API: message_carry_response(src_id, dst_id, messages[List])
+3. The craft will send a radar update request to the simulator, where it will be told of any other craft in radar range. The simulator will respond with the ranges to other entities, and the craft then decides if it should attempt to communicate with them based on its transmission range.
 
-	3. The craft will send a radar update request to the simulator, where it will be told of any other craft in radar range. The simulator will respond with the ranges to other entities, and the craft then decides if it should attempt to communicate with them based on its transmission range.
 
-		API: radar_ping(src_id) -> entitys[List]
+4. Given the results of the radar update, for any new craft in range, the craft will send handshake messages to the simulator bound for the other craft, which they will recieve during their update.
 
-	4. Given the results of the radar update, for any new craft in range, the craft will send handshake messages to the simulator bound for the other craft, which they will recieve during their update.
 
-		API: syn(src_id, dst_id) -> void
+5. If the craft just recieved the handshake response from another craft, it will now transmit the destination list of its message buffer along with its itinerary.
 
-	5. If the craft just recieved the handshake response from another craft, it will now transmit the destination list of its message buffer along with its itinerary.
 
-		API: ack(src_id, dst_id, itinerary[List]) -> void
+6. If the craft just recieved a destination list of other entities messages buffers, it will check its itinerary, and if its going to be visiting any of the destinations before the other craft (or some other heuristic, for example if it will be getting closer but not actually going to a destination it might request those messages, assuming it'll bump into another craft it can), will transmit which messages its willing to carry. 
 
-	6. If the craft just recieved a destination list of other entities messages buffers, it will check its itinerary, and if its going to be visiting any of the destinations before the other craft (or some other heuristic, for example if it will be getting closer but not actually going to a destination it might request those messages, assuming it'll bump into another craft it can), will transmit which messages its willing to carry. 
 
-		API: message_carry_request(src_id, dst_id, messages[List]) -> void
 
 ## Message
 
