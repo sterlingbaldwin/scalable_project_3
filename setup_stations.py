@@ -3,8 +3,8 @@ import paramiko
 import argparse
 from random import choice
 
-# PI_ADDRESSES = ["10.35.70.29", "10.35.70.20"]
-PI_ADDRESSES = ["10.35.70.29"]
+PI_ADDRESSES = ["10.35.70.29", "10.35.70.30"]
+
 SSH_KEY = f"{os.environ['HOME']}/.ssh/id_rsa.pub"
 USER = os.environ['USER']
 
