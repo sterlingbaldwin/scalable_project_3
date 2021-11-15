@@ -46,14 +46,15 @@ def setup_stations(num_stations: int, server_address: str, port: str):
         else:
             print(f"Using previously established connection {station_address}")
 
+        print(f"executing command: {cmd}")
         (_, stdout, stderr) = ssh_connections[station_address].exec_command(cmd)
         print("Reading output from master")
-
 
         workers[station_address] = worker(stdout, stderr)
         print("Finished reading output from master")
 
 
+    
         # for line in stderr.readlines():
         #     print(line)
         # for line in stdout.readlines():

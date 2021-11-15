@@ -67,9 +67,11 @@ class station:
         self.loc = tuple(data["location"])
     
     def run(self):
+        print("connecting to the server")
         self.connect()
         while True:
             sleep(uniform(.5, 1.5))
+            print("starting update")
             self.update()
 
     def update(self):
