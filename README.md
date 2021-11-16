@@ -42,6 +42,14 @@ The ip addresses are (for the time being):
 	rasp-029: 10.35.70.29
 	rasp-030: 10.35.70.30
 
+## NOTE
+
+Because the ssh connection needs to activate the virtual env, you'll need to have the repo under the path:
+
+	/users/pgrad/{USER}/projects/scalable_project_3
+
+In the future we can make this configurable, but right now just put the repo under $HOME/projects/ and put your venv there and it should work.
+
 
 # Project Outline
 
