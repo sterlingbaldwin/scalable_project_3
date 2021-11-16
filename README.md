@@ -13,6 +13,36 @@ Space Mail!
 - StationaryStations.py: Contains the code for the Starting and end points stationay stations for the ships to traverse between.
 
 
+## Running the thing
+
+There are two commands that need to be run (may be unified in the future), first you need to launch the simulator on an allowed port, and then you need to start the script which launches the entities (just stations for the moment).
+
+### localhost
+In a local development environment open two terminals and in the first one run:
+(no need for --host or --port)
+
+	python main.py 
+
+To create a station and have it connect run:
+
+	python start_station.py localhost 5000 CAFEBABE
+
+### Raspberry Pi
+
+On the pi, you have to first get your ip address, then start with:
+
+	python main.py --host 0.0.0.0 --port 33000
+
+and in a second terminal, run:
+
+	python setup_stations.py --host <the ip address of the pi running the sim> --port 33000
+
+The ip addresses are (for the time being):
+
+	rasp-029: 10.35.70.29
+	rasp-030: 10.35.70.30
+
+
 # Project Outline
 
 The purpose of this project is to simulate sending email (space mail) between entities in the solar system, who have no direct method of communication (no phone lines between Earth and Mars) and so must rely on currier ships. There are four simulated entity types:
