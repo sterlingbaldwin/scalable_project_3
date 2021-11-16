@@ -159,8 +159,5 @@ At each time step, the simulator will iterate over all the ships, and determine 
 	RETURNS:
 			void
 	
-<<<<<<< HEAD
 	This is the response to being send a message asking to carry other messages
-=======
-	This is the response to being send a message asking to carry other messages
->>>>>>> 44a7935 (readme update)
+
