@@ -1,6 +1,5 @@
 import sys
 import argparse
-
 from Simulator import simulator
 
 def main():
@@ -12,20 +11,32 @@ def main():
         default=1e5,
         help="The size of the simulated universe, default is 1e5 km")
     parser.add_argument(
-        '--stations',
+        "--host",
+        type=str,
+        default="127.0.0.1",
+        help="The IP address to bind to, by default is set to 172.0.0.1. If you want anyone else to see the server run with 0.0.0.0")
+    parser.add_argument(
+        "--port",
+        type=str,
+        default="5000",
+        help="The port the simulator should run on, default is 5000")
+    parser.add_argument(
+        "--num-ships",
         type=int,
         default=10,
-        help="The number of fixed stations, default is 10")
+        help="Number of ships to spawn, default = 10")
     parser.add_argument(
-        '--ships',
+        "--num-stations",
         type=int,
-        default=100,
-        help="The number of moving ships, default is 100")
+        default=1,
+        help="Number of stations to spawn, default = 1")
     args = parser.parse_args()
     sim = simulator(
-        num_ships=args.ships,
-        num_stations=args.stations,
-        size=args.size)
+        size=args.size,
+        host=args.host,
+        port=args.port)
+    sim()
+    
 
 if __name__ == "__main__":
     sys.exit(main())

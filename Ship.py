@@ -4,6 +4,9 @@ __title__ = "Ships"
 __author__ = "Scalable Module Group 15"
 __version__ = 1.0
 
+import requests
+from time import sleep
+from numpy.random import uniform
 from typing import List
 
 __COMMUNICATION_RANGE = [100, 1000]
@@ -15,13 +18,41 @@ class ship:
         loc(tuple): x and y cordinate of the Ships
         ShipID(str): the name of the ship
     """
-    def __init__(self, ShipID: str) -> None:
-        self.id = ShipID
+    def __init__(self, shipId: str, simulator_address: str, port: str) -> None:
+        self.__id = shipId
         self.__loc = (0.0, 0.0)
         self.__range = 0
         self.__speed = 0
-        self.itinerary = []
+        self.__itinerary = []
+        self.simulator_address = simulator_address
+        self.port = port
         pass
+
+    def run(self):
+        self.connect()
+        while True:
+            sleep(uniform(.5, 1.5))
+            self.update()
+
+
+    def connect(self):
+        url = f"http://{self.__simulator_address}/new_entity_connect"
+        params = {
+            "entity_type": "ship",
+            "entity_id": self.id
+        } 
+        session = requests.Session()
+        session.trust_env = False
+        if (res := session.get(url, params)).status_code != 200:
+            raise ValueError(f"Unable to connect to simulator: {res}")
+
+    @property
+    def id(self):
+        return self.__id
+
+    @property
+    def itinerary(self):
+        return self.__itinerary
 
     @property
     def loc(self):
@@ -33,14 +64,14 @@ class ship:
         return self.__loc
     
     @loc.setter
-    def loc(self, inp: List[float]):
+    def loc(self, inp: tuple):
         """Setter fuction for the location property
 
         Args:
-            inp (List[float]): (x, y) type input
+            inp (tuple[float]): (x, y) type input
         """
         if len(inp) == 2:
-            self.__loc = tuple(inp)
+            self.__loc = inp
         else:
             raise ValueError('Input type expected in the form of x,y')
     
@@ -62,7 +93,7 @@ class ship:
     
     @property
     def speed(self):
-        return str(self.__speed) + 'm/hr'
+        return str(self.__speed) + 'm/s'
     
     @speed.setter
     def speed(self, inp: float):
