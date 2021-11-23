@@ -19,36 +19,12 @@ class ship:
         ShipID(str): the name of the ship
     """
     def __init__(self, shipId: str, simulator_address: str, port: str) -> None:
-        self.__id = shipId
+        super().__init__(shipId, port, simulator_address)
         self.__loc = (0.0, 0.0)
         self.__range = 0
         self.__speed = 0
         self.__itinerary = []
-        self.simulator_address = simulator_address
-        self.port = port
         pass
-
-    def run(self):
-        self.connect()
-        while True:
-            sleep(uniform(.5, 1.5))
-            self.update()
-
-
-    def connect(self):
-        url = f"http://{self.__simulator_address}/new_entity_connect"
-        params = {
-            "entity_type": "ship",
-            "entity_id": self.id
-        } 
-        session = requests.Session()
-        session.trust_env = False
-        if (res := session.get(url, params)).status_code != 200:
-            raise ValueError(f"Unable to connect to simulator: {res}")
-
-    @property
-    def id(self):
-        return self.__id
 
     @property
     def itinerary(self):
