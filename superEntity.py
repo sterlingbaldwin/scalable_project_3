@@ -17,6 +17,8 @@ class SuperEntity:
         self._id = id
         self._simulator_port = port
         self._simulator_address = address
+        self._controller_address = ""
+        self._controller_port = ""
         pass
 
     def make_get_request(self, endpoint: str, params: Dict):
@@ -40,7 +42,19 @@ class SuperEntity:
         if (request := session.send(request)).status_code != 200:
             raise ValueError(f"Error from the simulator: {request} from request: {url}")
         return request
-        
+
+    def make_get_request_to_controller(self, endpoint: str, params: Dict):
+        request = None
+        url = f"http://{self._controller_address}:{self._controller_port}/{endpoint}"
+        if (params):
+           url += f"?{urllib.parse.urlencode(params)}"  
+        print(f"Sending get request: {url}")
+        session = requests.Session()
+        session.trust_env = False
+        request = session.prepare_request(requests.Request('GET', url))
+        if (request := session.send(request)).status_code != 200:
+            raise ValueError(f"Error from the simulator: {request} from request: {url}")
+        return request   
 
     def new_entity_connect(self):
         """
