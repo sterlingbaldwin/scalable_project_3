@@ -7,10 +7,6 @@ import re
 from Ship import ship
 from flask import Flask, Response, request
 
-SHIP_DETAILS = pd.DataFrame(columns=['ShipID', 'port', 'Address', 'Speed', 'CommunicationRange', 'location', 'pingTime'])
-STATION_DETAILS = pd.DataFrame(columns=['StationID', 'port', 'Address', 'location', 'pingTime'])
-COMMUNICATION_TABLE = pd.DataFrame(columns=['Entity1Type', 'Entity1', 'Entity2Type', 'Entity2'])
-
 class EndpointAction:
     def __init__(self, action):
         self.action = action
@@ -68,13 +64,13 @@ class Controller:
             comRange (str): Ship's Communication range
             loc (tuple): Ships location
         """
-        shipID = request.form.get("shipID"),
+        shipID = request.form.get("shipID")
         port = request.form.get("port")
         address = request.form.get("address")
         speed = request.form.get("speed")
         comRange = request.form.get("comRange")
         loc = request.form.getlist("loc")
-        SHIP_DETAILS.loc[SHIP_DETAILS.shape[0]] = {
+        self.ship_details.loc[self.ship_details.shape[0]] = {
             'ShipID':shipID,
             'port':port,
             'Address':address,
@@ -99,7 +95,7 @@ class Controller:
         port = request.form.get("port")
         address = request.form.get("address")
         loc = request.form.getlist("loc")
-        STATION_DETAILS.loc[STATION_DETAILS.shape[0]] = {
+        self.station_details.loc[self.station_details.shape[0]] = {
             'StationID':StationID,
             'port':port,
             'Address':address,
@@ -127,41 +123,64 @@ class Controller:
         else:
             val = value
         if entityType == 'ship':
-            SHIP_DETAILS.loc[SHIP_DETAILS['ShipID'] == ID, para] = val
+            self.ship_details.loc[self.ship_details['ShipID'] == ID, para] = val
         elif entityType == 'station':
-            STATION_DETAILS.loc[STATION_DETAILS['StationID'] == ID, para] = val
+            self.station_details.loc[self.station_details['StationID'] == ID, para] = val
 
-    def communicationPairing():
-        for i in range(SHIP_DETAILS.shape[0]):
-            strloc1 = SHIP_DETAILS.loc[i, 'location']
-            range1 = int(SHIP_DETAILS.loc[i, 'CommunicationRange'])
+    def communicationPairing(self):
+        for i in range(self.ship_details.shape[0]):
+            strloc1 = self.ship_details.loc[i, 'location']
+            range1 = int(self.ship_details.loc[i, 'CommunicationRange'])
             loc1 = np.array(list(map(float, np.array(re.findall(r'\d+', strloc1)))))
-            for j in range(i, SHIP_DETAILS.shape[0]):
-                strloc2 = SHIP_DETAILS.loc[j, 'location']
-                range2 = int(SHIP_DETAILS.loc[i, 'CommunicationRange'])
+            for j in range(i, self.ship_details.shape[0]):
+                strloc2 = self.ship_details.loc[j, 'location']
+                range2 = int(self.ship_details.loc[i, 'CommunicationRange'])
                 loc2 = np.array(list(map(float, np.array(re.findall(r'\d+', strloc2)))))
                 dist = np.linalg.norm(loc1 - loc2)
                 if dist <= range1 and dist <= range2:
-                    COMMUNICATION_TABLE.loc[COMMUNICATION_TABLE.shape[0]] = {
+                    self.communication_table.loc[self.communication_table.shape[0]] = {
                         'Entity1Type':'ship',
-                        'Entity1':SHIP_DETAILS.loc[i, 'ShipID'],
+                        'Entity1':self.ship_details.loc[i, 'ShipID'],
                         'Entity2Type':'ship',
-                        'Entity2':SHIP_DETAILS.loc[j, 'ShipID']
+                        'Entity2':self.ship_details.loc[j, 'ShipID']
                     }
-            for j in range(STATION_DETAILS.shape[0]):
-                strloc2 = STATION_DETAILS.loc[j, 'location']
+            for j in range(self.station_details.shape[0]):
+                strloc2 = self.station_details.loc[j, 'location']
                 loc2 = np.array(list(map(float, np.array(re.findall(r'\d+', strloc2)))))
                 dist = np.linalg.norm(loc1 - loc2)
                 if dist <= range1:
-                    COMMUNICATION_TABLE.loc[COMMUNICATION_TABLE.shape[0]] = {
+                    self.communication_table.loc[self.communication_table.shape[0]] = {
                         'Entity1Type':'ship',
-                        'Entity1':SHIP_DETAILS.loc[i, 'ShipID'],
+                        'Entity1':self.ship_details.loc[i, 'ShipID'],
                         'Entity2Type':'station',
-                        'Entity2':STATION_DETAILS.loc[j, 'StationID']
+                        'Entity2':self.station_details.loc[j, 'StationID']
                     }
     
     def ping(self, request):
-        pass
+        """[summary]
+
+        Args:
+            shipID: the id of the ship which needs to be pinged
+        """
+        shipID = request.args.get("shipID")
+        print(shipID)
+        output = []
+        print(self.ship_details)
+        location = self.ship_details.loc[self.ship_details['ShipID']==shipID]['location'].to_string(index=False)
+        communication_range = self.ship_details.loc[self.ship_details['ShipID']==shipID]['CommunicationRange'].to_string(index=False)
+        loc1 = np.array(list(map(float, np.array(re.findall(r'\d+', location)))))
+        for i in range(self.ship_details.shape[0]):
+            if self.ship_details.loc[i, 'ShipID'] == shipID:
+                continue
+            else:
+                str_loc2 = self.ship_details.loc[i, 'location']
+                loc2 = np.array(list(map(float, np.array(re.findall(r'\d+', str_loc2)))))
+                distance = np.linalg.norm(loc1 - loc2)
+                if distance <= float(communication_range):
+                    output.append(self.ship_details.loc[i, 'ShipID'])
+        print(output)
+        res = Response(response=f"{output}", status=200)
+        return res
 
 controller = Controller()
 controller()
