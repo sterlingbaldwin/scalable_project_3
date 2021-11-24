@@ -4,6 +4,8 @@ import numpy as np
 import datetime
 import re
 
+from Ship import ship
+
 SHIP_DETAILS = pd.DataFrame(columns=['ShipID', 'port', 'Address', 'Speed', 'CommunicationRange', 'location', 'pingTime'])
 STATION_DETAILS = pd.DataFrame(columns=['StationID', 'port', 'Address', 'location', 'pingTime'])
 COMMUNICATION_TABLE = pd.DataFrame(columns=['Entity1Type', 'Entity1', 'Entity2Type', 'Entity2'])
@@ -68,22 +70,22 @@ def communicationPairing():
     for i in range(SHIP_DETAILS.shape[0]):
         strloc1 = SHIP_DETAILS.loc[i, 'location']
         range1 = int(SHIP_DETAILS.loc[i, 'CommunicationRange'])
-        loc1 = np.array(re.findall(r'\d+', strloc1))
+        loc1 = np.array(list(map(float, np.array(re.findall(r'\d+', strloc1)))))
         for j in range(i, SHIP_DETAILS.shape[0]):
             strloc2 = SHIP_DETAILS.loc[j, 'location']
             range2 = int(SHIP_DETAILS.loc[i, 'CommunicationRange'])
-            loc2 = np.array(re.findall(r'\d+', strloc2))
+            loc2 = np.array(list(map(float, np.array(re.findall(r'\d+', strloc2)))))
             dist = np.linalg.norm(loc1 - loc2)
-            if dist <= range1 & dist <= range2:
+            if dist <= range1 and dist <= range2:
                 COMMUNICATION_TABLE.loc[COMMUNICATION_TABLE.shape[0]] = {
                     'Entity1Type':'ship',
                     'Entity1':SHIP_DETAILS.loc[i, 'ShipID'],
                     'Entity2Type':'ship',
                     'Entity2':SHIP_DETAILS.loc[j, 'ShipID']
                 }
-        for j in range(STATION_DETAILS):
+        for j in range(STATION_DETAILS.shape[0]):
             strloc2 = STATION_DETAILS.loc[j, 'location']
-            loc2 = np.array(re.findall(r'\d+', strloc2))
+            loc2 = np.array(list(map(float, np.array(re.findall(r'\d+', strloc2)))))
             dist = np.linalg.norm(loc1 - loc2)
             if dist <= range1:
                 COMMUNICATION_TABLE.loc[COMMUNICATION_TABLE.shape[0]] = {
