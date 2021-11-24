@@ -4,15 +4,17 @@ __title__ = "Ships"
 __author__ = "Scalable Module Group 15"
 __version__ = 1.0
 
-import requests
 from time import sleep
 from numpy.random import uniform
 from typing import List
+import json
+
+from superEntity import SuperEntity
 
 __COMMUNICATION_RANGE = [100, 1000]
 __SPEED_RANGE = [100, 1000]
 
-class ship:
+class ship(SuperEntity):
     """Ship Class
     Args:
         loc(tuple): x and y cordinate of the Ships
@@ -77,6 +79,12 @@ class ship:
             self.__speed = inp
         else:
             raise ValueError(f'Speed Range for the ships is between {__SPEED_RANGE[0]} & {__SPEED_RANGE[1]}')
+
+    def ping(self):
+        res = super().make_get_request_to_controller(endpoint="ping", params=self._id)
+        data = json.loads(res.content)
+        print(f"ping response {data}...")
+        return data
 
 if __name__ == "__main__":
     pass
