@@ -7,7 +7,9 @@ from datetime import datetime
 
 import requests
 
-SHIP_DETAILS = pd.DataFrame(columns=['ShipID', 'port', 'Address', 'Speed', 'CommunicationRange', 'location', 'pingTime'])
+from Station import station
+
+SHIP_DETAILS = pd.DataFrame(columns=['ShipID', 'port', 'Address', 'Speed', 'Communication_range', 'location', 'pingTime'])
 STATION_DETAILS = pd.DataFrame(columns=['StationID', 'port', 'Address', 'location', 'pingTime'])
 COMMUNICATION_TABLE = pd.DataFrame(columns=['Entity1Type', 'Entity1', 'Entity2Type', 'Entity2'])
 
@@ -22,8 +24,8 @@ class EndpointAction:
 
 class Controller:
     def __init__(self, host:str = "127.0.0.1", port: str = "3000", size:int = 100_000) -> None:
-        self.ship_details = pd.DataFrame(columns=['ShipID', 'port', 'Address', 'Speed', 'CommunicationRange', 'location', 'pingTime'])
-        self.station_details = pd.DataFrame(columns=['StationID', 'port', 'Address', 'location', 'pingTime'])
+        self.ship_details = pd.DataFrame(columns=['ship_id', 'port', 'address', 'speed', 'communicationRange', 'location', 'pingTime'])
+        self.station_details = pd.DataFrame(columns=['station_id', 'port', 'address', 'location', 'pingTime'])
         self.communication_table = pd.DataFrame(columns=['Entity1Type', 'Entity1', 'Entity2Type', 'Entity2'])
         self.host = host
         self.port = port
@@ -139,13 +141,15 @@ class Controller:
             port = request.form.get("port")
             address = request.form.get("address")
             loc = request.form.getlist("loc")
+            print(self.station_details.shape[0])
             self.station_details.loc[self.station_details.shape[0]] = {
                 'station_id':station_id,
                 'port':port,
-                'Address':address,
+                'address':address,
                 'location':f'x:{loc[0]}, y:{loc[1]}',
-                'pingTime': datetime.datetime.now()
+                'pingTime': datetime.now()
             }
+        
             res = Response(response=f"new station with id={station_id} has connected", status=200)
         except Exception as e:
             res = Response(response=f"Error handling addStation request: {repr(e)}", status=400)

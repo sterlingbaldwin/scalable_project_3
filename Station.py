@@ -21,34 +21,27 @@ class station(SuperEntity):
         location(dict): a dictionary containing the x,y coordinates of the station
         population(int): the size of the stations population, used to determine the rate of message generation
     """
-    def __init__(self, population: int, stationId: str, address: str, port: str) -> None:
-        self.location = None
+    def __init__(self, population: int, station_id: str, simulator_address: str, port: str) -> None:
+        super().__init__(station_id, port, simulator_address)
         self.population = population
-        super().__init__(stationId, port, address)
 
         print(f"Initializing new station: {self}")
     
-    @property
-    def loc(self):
-        return self.location
-
-    @loc.setter
-    def loc(self, inp: tuple):
-        """Setter fuction for the location property
-
-        Args:
-            inp (tuple[float]): (x, y) type input
-        """
-        if len(inp) == 2:
-            self.location = inp
-        else:
-            raise ValueError('Input type expected in the form of x,y')
-    
     def __str__(self):
         return str({
-            "location": self.location,
+            "location": self.loc,
             "population": self.population,
-            "id": self.__id,
-            "simulator_address": self.__simulator_address,
-            "simulator_port": self.__port
+            "id": self._id,
+            "simulator_address": self._simulator_address,
+            "simulator_port": self._simulator_port
         })
+
+    def connect(self):
+        print(self._id)
+        params = {
+            'station_id': self._id,
+            'loc': self.loc
+        }
+        return self.make_request_to_controller('add_station', params, method="POST")
+
+    

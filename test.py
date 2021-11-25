@@ -1,6 +1,7 @@
 import argparse
 import unittest
 from subprocess import Popen, PIPE
+import uuid
 from Ship import ship
 from Station import station
 import configparser
@@ -22,8 +23,16 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         pass
     
-    # def test_add_station(self):
-    #     pass
+    def test_add_station(self):
+        _id = uuid4().hex
+        new_station = station(
+            population=10,
+            station_id = _id,
+            simulator_address = config['MainController']['hostIP'],
+            port=config['MainController']['port']
+        )
+        res = new_station.connect()
+        self.assertEqual(res.status_code, 200)
 
     # def test_ping(self):
     #     pass
