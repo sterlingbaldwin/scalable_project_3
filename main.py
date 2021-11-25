@@ -1,6 +1,10 @@
 import sys
 import argparse
-from Simulator import simulator
+from MainController import Controller
+import configparser
+
+config = configparser.ConfigParser()
+config.read('Environment.ini')
 
 def main():
     parser = argparse.ArgumentParser(
@@ -8,35 +12,35 @@ def main():
     parser.add_argument(
         '--size',
         type=int,
-        default=1e5,
-        help="The size of the simulated universe, default is 1e5 km")
+        default=config['MainController']['size'],
+        help=f"The size of the simulated universe, default is {config['MainController']['size']} km")
     parser.add_argument(
         "--host",
         type=str,
-        default="127.0.0.1",
-        help="The IP address to bind to, by default is set to 172.0.0.1. If you want anyone else to see the server run with 0.0.0.0")
+        default=config['MainController']['hostIP'],
+        help=f"The IP address to bind to, by default is set to {config['MainController']['hostIP']}. If you want anyone else to see the server run with 0.0.0.0")
     parser.add_argument(
         "--port",
         type=str,
-        default="5000",
-        help="The port the simulator should run on, default is 5000")
+        default=config['MainController']['port'],
+        help=f"The port the simulator should run on, default is {config['MainController']['port']}")
     parser.add_argument(
         "--num-ships",
         type=int,
-        default=10,
-        help="Number of ships to spawn, default = 10")
+        default=config['MainController']['num_ships'],
+        help=f"The number of ships to spawn, default is {config['MainController']['num_ships']}")
     parser.add_argument(
         "--num-stations",
         type=int,
-        default=1,
-        help="Number of stations to spawn, default = 1")
+        default=config['MainController']['num_stations'],
+        help=f"The number of stations to spawn, default is {config['MainController']['num_stations']}")
     args = parser.parse_args()
-    sim = simulator(
+    controller = Controller(
         size=args.size,
         host=args.host,
         port=args.port)
-    sim()
-    
+    controller()
+
 
 if __name__ == "__main__":
     sys.exit(main())
