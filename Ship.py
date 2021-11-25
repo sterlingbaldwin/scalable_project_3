@@ -57,18 +57,6 @@ class ship(SuperEntity):
             self.__speed = inp
         else:
             raise ValueError(f'Speed Range for the ships is between {self.__SPEED_RANGE[0]} & {self.__SPEED_RANGE[1]}')
-
-    def ping(self):
-        """
-            request:
-                entity_id: The id of the ship
-            response:
-                res.text: The list-like string contains all the entities in range
-        """
-        res = super().make_request_to_controller(endpoint="ping", params={})
-        data = res.text
-        print(f"ping response {data}...")
-        return data
     
     def connect(self):
         params = {

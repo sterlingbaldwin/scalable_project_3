@@ -39,6 +39,18 @@ class SuperEntity:
             self.__loc = inp
         else:
             raise ValueError('Input type expected in the form of x,y')
+    
+    def ping(self):
+        """
+            request:
+                entity_id: The id of the ship
+            response:
+                res.text: The list-like string contains all the entities in range
+        """
+        res = self.make_request_to_controller(endpoint="ping", params={})
+        data = json.loads(res.text)
+        print(f"ping response {data}...")
+        return data
 
     def make_request_to_controller(self, endpoint: str, params: Dict, method:str = 'GET'):
         """
@@ -52,7 +64,6 @@ class SuperEntity:
         """
         request = None
         url = f"http://{self._simulator_address}:{self._simulator_port}/{endpoint}"
-        print(f"Sending get request: {url}")
         session = requests.Session()
         session.trust_env = False
         if method == "GET":
