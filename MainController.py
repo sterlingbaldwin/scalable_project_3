@@ -1,42 +1,15 @@
 from flask import Flask, request, Response
-import configparser
 import pandas as pd
 import numpy as np
 import datetime
 import re
+from datetime import datetime
 
-from setup_stations import main
+import requests
 
 SHIP_DETAILS = pd.DataFrame(columns=['ShipID', 'port', 'Address', 'Speed', 'CommunicationRange', 'location', 'pingTime'])
 STATION_DETAILS = pd.DataFrame(columns=['StationID', 'port', 'Address', 'location', 'pingTime'])
 COMMUNICATION_TABLE = pd.DataFrame(columns=['Entity1Type', 'Entity1', 'Entity2Type', 'Entity2'])
-
-config = configparser.ConfigParser()
-config.read('Environment.ini')
-app = Flask(__name__)
-
-def addShip():
-    """Add new Ship details in the controler PI
-    """
-    if request.method == 'POST':
-        inputShipDetails = request.json
-        inputShipDetails['pingTime'] = datetime.datetime.now()
-        print(inputShipDetails)
-        SHIP_DETAILS.loc[SHIP_DETAILS.shape[0]] = request.json
-        return f'Ship count is {SHIP_DETAILS.shape[0]}'
-    else:
-        return """
-        This is method needs to be run using post method with json entry similar to the one below:
-
-        {
-            'ShipID':shipID,
-            'port':port,
-            'Address':address,
-            'Speed':speed,
-            'CommunicationRange':comRange,
-            'location':'x:{}, y:{}'.format(loc[0], loc[1]), #here loc[0] coresponds to the x position and loc[1] the corresponding y
-        }
-        """
 
 class EndpointAction:
     def __init__(self, action):
@@ -48,41 +21,77 @@ class EndpointAction:
         return self.response
 
 class Controller:
-    def __init__(self, host:str = "127.0.0.1", port: str = "3000") -> None:
+    def __init__(self, host:str = "127.0.0.1", port: str = "3000", size:int = 100_000) -> None:
         self.ship_details = pd.DataFrame(columns=['ShipID', 'port', 'Address', 'Speed', 'CommunicationRange', 'location', 'pingTime'])
         self.station_details = pd.DataFrame(columns=['StationID', 'port', 'Address', 'location', 'pingTime'])
         self.communication_table = pd.DataFrame(columns=['Entity1Type', 'Entity1', 'Entity2Type', 'Entity2'])
         self.host = host
         self.port = port
         self._app = None
+        self._world_size = size
+        self._time = datetime.now()
+        self._stations = []
+        self._ships = []
 
     def __call__(self):
         self._app = Flask(__name__)
         self.add_endpoint(
             endpoint='/add_ship',
             name="add_ship",
-            handler=self.addShip
-        )
+            handler=self.addShip)
         self.add_endpoint(
             endpoint='/add_station',
             name="add_station",
-            handler=self.addStation
-        )
+            handler=self.addStation)
         self.add_endpoint(
             endpoint='/update_details',
             name="update_details",
-            handler=self.updateDetails
-        )
+            handler=self.updateDetails)
         self.add_endpoint(
             endpoint='/ping',
             name="ping",
-            handler=self.ping
-        )
-        print(f"Starting the server with address {self.host}")
+            handler=self.ping)
+        self.add_endpoint(
+            endpoint='/syn', 
+            name='syn',
+            handler=self.syn)
+        self.add_endpoint(
+            endpoint='/ack', 
+            name='ack',
+            handler=self.ack)
+        self.add_endpoint(
+            endpoint='/message_carry_request', 
+            name='message_carry_request',
+            handler=self.message_carry_request)
+        self.add_endpoint(
+            endpoint='/message_carry_reponse', 
+            name='message_carry_reponse',
+            handler=self.message_carry_reponse)
+        print(f"Starting the controller with address {self.host}")
         self._app.run(host=self.host, port=self.port)
 
     def add_endpoint(self, endpoint, name, handler):
         self._app.add_url_rule(endpoint, name, EndpointAction(handler), methods=['GET', "POST"])
+    
+    def message_carry_reponse(self, request):
+        print(f"message_carry_reponse with {request}")
+        res = Response(response=f"", status=400)
+        return res
+
+    def message_carry_request(self, request):
+        print(f"message_carry_request with {request}")
+        res = Response(response=f"", status=400)
+        return res
+
+    def ack(self, request):
+        print(f"ack with {request}")
+        res = Response(response=f"", status=400)
+        return res
+
+    def syn(self, request):
+        print(f"syn with {request}")
+        res = Response(response=f"", status=400)
+        return res
 
     def addShip(self, request):
         """Add new Ship details in the controler PI
@@ -95,22 +104,25 @@ class Controller:
             comRange (str): Ship's Communication range
             loc (tuple): Ships location
         """
-        shipID = request.form.get("shipID")
-        port = request.form.get("port")
-        address = request.form.get("address")
-        speed = request.form.get("speed")
-        comRange = request.form.get("comRange")
-        loc = request.form.getlist("loc")
-        self.ship_details.loc[self.ship_details.shape[0]] = {
-            'ShipID':shipID,
-            'port':port,
-            'Address':address,
-            'Speed':speed,
-            'CommunicationRange':comRange,
-            'location':'x:{}, y:{}'.format(loc[0], loc[1]),
-            'pingTime': datetime.datetime.now()
-        }
-        res = Response(response=f"{shipID} has been created", status=200)
+        try:
+            ship_id = request.form.get("ship_id")
+            port = request.form.get("port")
+            address = request.form.get("address")
+            speed = request.form.get("speed")
+            comRange = request.form.get("comRange")
+            loc = request.form.getlist("loc")
+            self.ship_details.loc[self.ship_details.shape[0]] = {
+                'ship_id':ship_id,
+                'port':port,
+                'address':address,
+                'speed':speed,
+                'communication_range':comRange,
+                'location':f'x:{loc[0]}, y:{loc[1]}',
+                'pingTime': datetime.now()
+            }
+            res = Response(response=f"new ship with id={ship_id} has connected", status=200)
+        except Exception as e:
+            res = Response(response=f"Error handling addShip request: {repr(e)}", status=400)
         return res
 
     def addStation(self, request):
@@ -122,18 +134,21 @@ class Controller:
             address (str): Communication address of the ship
             loc (tuple): Ships location
         """
-        StationID = request.form.get("StationID")
-        port = request.form.get("port")
-        address = request.form.get("address")
-        loc = request.form.getlist("loc")
-        self.station_details.loc[self.station_details.shape[0]] = {
-            'StationID':StationID,
-            'port':port,
-            'Address':address,
-            'location':'x:{}, y:{}'.format(loc[0], loc[1]),
-            'pingTime': datetime.datetime.now()
-        }
-        res = Response(response=f"{StationID} has been created", status=200)
+        try:
+            station_id = request.form.get("station_id")
+            port = request.form.get("port")
+            address = request.form.get("address")
+            loc = request.form.getlist("loc")
+            self.station_details.loc[self.station_details.shape[0]] = {
+                'station_id':station_id,
+                'port':port,
+                'Address':address,
+                'location':f'x:{loc[0]}, y:{loc[1]}',
+                'pingTime': datetime.datetime.now()
+            }
+            res = Response(response=f"new station with id={station_id} has connected", status=200)
+        except Exception as e:
+            res = Response(response=f"Error handling addStation request: {repr(e)}", status=400)
         return res
 
     def updateDetails(self, request):
@@ -212,15 +227,3 @@ class Controller:
         print(output)
         res = Response(response=f"{output}", status=200)
         return res
-
-controller = Controller()
-controller()
-
-# app.add_url_rule('/addShips', 'adding Ship', addShip, methods=['GET','POST'])
-
-# if __name__=="__main__":
-#     app.run(
-#         host=config['MainController']['hostIP']
-#         ,port=config['MainController']['port']
-#         ,debug=config['MainController'].getboolean('debug')
-#     )
