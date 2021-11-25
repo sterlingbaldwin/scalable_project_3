@@ -4,14 +4,8 @@ import numpy as np
 import datetime
 import re
 from datetime import datetime
+import json
 
-import requests
-
-from Station import station
-
-SHIP_DETAILS = pd.DataFrame(columns=['ShipID', 'port', 'Address', 'Speed', 'Communication_range', 'location', 'pingTime'])
-STATION_DETAILS = pd.DataFrame(columns=['StationID', 'port', 'Address', 'location', 'pingTime'])
-COMMUNICATION_TABLE = pd.DataFrame(columns=['Entity1Type', 'Entity1', 'Entity2Type', 'Entity2'])
 
 class EndpointAction:
     def __init__(self, action):
@@ -37,6 +31,10 @@ class Controller:
 
     def __call__(self):
         self._app = Flask(__name__)
+        self.add_endpoint(
+            endpoint='/remove_entity',
+            name="remove_entity",
+            handler=self.remove_entity)
         self.add_endpoint(
             endpoint='/add_ship',
             name="add_ship",
@@ -93,6 +91,30 @@ class Controller:
     def syn(self, request):
         print(f"syn with {request}")
         res = Response(response=f"", status=400)
+        return res
+    
+    def remove_entity(self, request):
+        """Remove a ship or station
+
+        Args:
+            shipID (str): New Ship ID
+        """
+        try:
+            _id = request.form.get("entity_id")
+            item = self.ship_details.loc[self.ship_details['ship_id'] == _id]
+            if not item.empty:
+                self.ship_details = self.ship_details.drop(item.index[0])
+                res = Response(response=f"Ship with id={_id} has been removed", status=200)
+                return res
+            item = self.station_details.loc[self.station_details['station_id'] == _id]
+            if not item.empty:
+                self.station_details = self.station_details.drop(item.index[0])
+                res = Response(response=f"Station with id={_id} has been removed", status=200)
+                return res
+            
+            res = Response(response="Unable to find entity with id {_id}", status=400)
+        except Exception as e:
+            res = Response(response=f"Error handling remove_entity request: {repr(e)}", status=400)
         return res
 
     def addShip(self, request):
@@ -232,6 +254,7 @@ class Controller:
                     if distance <= float(communication_range):
                         output.append(self.ship_details.loc[i, 'ship_id'])
             print(output)
+            output = json.dumps(output)
             res = Response(response=f"{output}", status=200)
         except Exception as e:
             res = Response(response=f"Error handling addStation request: {repr(e)}", status=400)
