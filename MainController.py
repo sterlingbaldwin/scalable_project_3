@@ -118,7 +118,7 @@ class Controller:
                 'port':port,
                 'address':address,
                 'speed':speed,
-                'communication_range':comRange,
+                'communicationRange':comRange,
                 'location':f'x:{loc[0]}, y:{loc[1]}',
                 'pingTime': datetime.now()
             }
@@ -212,22 +212,27 @@ class Controller:
         Args:
             shipID: the id of the ship which needs to be pinged
         """
-        shipID = request.args.get("shipID")
-        print(shipID)
-        output = []
-        print(self.ship_details)
-        location = self.ship_details.loc[self.ship_details['ShipID']==shipID]['location'].to_string(index=False)
-        communication_range = self.ship_details.loc[self.ship_details['ShipID']==shipID]['CommunicationRange'].to_string(index=False)
-        loc1 = np.array(list(map(float, np.array(re.findall(r'\d+', location)))))
-        for i in range(self.ship_details.shape[0]):
-            if self.ship_details.loc[i, 'ShipID'] == shipID:
-                continue
-            else:
-                str_loc2 = self.ship_details.loc[i, 'location']
-                loc2 = np.array(list(map(float, np.array(re.findall(r'\d+', str_loc2)))))
-                distance = np.linalg.norm(loc1 - loc2)
-                if distance <= float(communication_range):
-                    output.append(self.ship_details.loc[i, 'ShipID'])
-        print(output)
-        res = Response(response=f"{output}", status=200)
+        try:
+            shipID = request.args.get("entity_id")
+            output = []
+            print(shipID)
+            print(self.ship_details)
+            location = self.ship_details.loc[self.ship_details['ship_id']==shipID]['location'].to_string(index=False)
+            communication_range = self.ship_details.loc[self.ship_details['ship_id']==shipID]['communicationRange'].to_string(index=False)
+            loc1 = np.array(list(map(float, np.array(re.findall(r'\d+', location)))))
+            print(loc1)
+            for i in range(self.ship_details.shape[0]):
+                if self.ship_details.loc[i, 'ship_id'] == shipID:
+                    continue
+                else:
+                    str_loc2 = self.ship_details.loc[i, 'location']
+                    loc2 = np.array(list(map(float, np.array(re.findall(r'\d+', str_loc2)))))
+                    print(loc2)
+                    distance = np.linalg.norm(loc1 - loc2)
+                    if distance <= float(communication_range):
+                        output.append(self.ship_details.loc[i, 'ship_id'])
+            print(output)
+            res = Response(response=f"{output}", status=200)
+        except Exception as e:
+            res = Response(response=f"Error handling addStation request: {repr(e)}", status=400)
         return res

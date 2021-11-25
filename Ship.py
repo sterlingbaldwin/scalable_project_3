@@ -12,9 +12,6 @@ import json
 
 from superEntity import SuperEntity
 
-__COMMUNICATION_RANGE = [100, 1000]
-__SPEED_RANGE = [100, 1000]
-
 class ship(SuperEntity):
     """Ship Class
     Args:
@@ -26,6 +23,8 @@ class ship(SuperEntity):
         self.__range = 0
         self.__speed = 0
         self.__itinerary = []
+        self.__COMMUNICATION_RANGE = [100, 1000]
+        self.__SPEED_RANGE = [100, 1000]
         pass
 
     @property
@@ -43,10 +42,10 @@ class ship(SuperEntity):
     
     @range.setter
     def range(self, inp: int):
-        if __COMMUNICATION_RANGE[0] < inp < __COMMUNICATION_RANGE[1]:
+        if self.__COMMUNICATION_RANGE[0] < inp < self.__COMMUNICATION_RANGE[1]:
             self.__range = inp
         else:
-            raise ValueError(f'Input communication range of the ships is between {__COMMUNICATION_RANGE[0]} & {__COMMUNICATION_RANGE[1]}')
+            raise ValueError(f'Input communication range of the ships is between {self.__COMMUNICATION_RANGE[0]} & {self.__COMMUNICATION_RANGE[1]}')
     
     @property
     def speed(self):
@@ -54,14 +53,20 @@ class ship(SuperEntity):
     
     @speed.setter
     def speed(self, inp: float):
-        if __SPEED_RANGE[0] < inp < __SPEED_RANGE[1]:
+        if self.__SPEED_RANGE[0] < inp < self.__SPEED_RANGE[1]:
             self.__speed = inp
         else:
-            raise ValueError(f'Speed Range for the ships is between {__SPEED_RANGE[0]} & {__SPEED_RANGE[1]}')
+            raise ValueError(f'Speed Range for the ships is between {self.__SPEED_RANGE[0]} & {self.__SPEED_RANGE[1]}')
 
     def ping(self):
-        res = super().make_get_request_to_controller(endpoint="ping", params=self._id)
-        data = json.loads(res.content)
+        """
+            request:
+                entity_id: The id of the ship
+            response:
+                res.text: The list-like string contains all the entities in range
+        """
+        res = super().make_request_to_controller(endpoint="ping", params={})
+        data = res.text
         print(f"ping response {data}...")
         return data
     
