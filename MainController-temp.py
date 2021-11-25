@@ -30,11 +30,11 @@ def addShip():
         This is method needs to be run using post method with json entry similar to the one below:
 
         {
-            'ShipID':shipID,
+            'ShipID':ShipID,
             'port':port,
-            'Address':address,
-            'Speed':speed,
-            'CommunicationRange':comRange,
+            'Address':Address,
+            'Speed':Speed,
+            'CommunicationRange':CommunicationRange,
             'location':'x:{}, y:{}'.format(loc[0], loc[1]), #here loc[0] coresponds to the x position and loc[1] the corresponding y
         }
         """
@@ -55,7 +55,7 @@ def addStation(self, request):
         {
             'StationID':StationID,
             'port':port,
-            'Address':address,
+            'Address':Address,
             'location':'x:{}, y:{}'.format(loc[0], loc[1]) #here loc[0] coresponds to the x position and loc[1] the corresponding y
         }
         """
@@ -75,9 +75,7 @@ def ping():
         shipID: the id of the ship which needs to be pinged
     """
     shipID = request.args.get("shipID")
-    print(shipID)
     output = []
-    print(SHIP_DETAILS)
     location = SHIP_DETAILS.loc[SHIP_DETAILS['ShipID']==shipID]['location'].to_string(index=False)
     communication_range = SHIP_DETAILS.loc[SHIP_DETAILS['ShipID']==shipID]['CommunicationRange'].to_string(index=False)
     loc1 = np.array(list(map(float, np.array(re.findall(r'\d+', location)))))
