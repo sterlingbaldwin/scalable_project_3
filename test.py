@@ -76,7 +76,7 @@ class TestControllerEndpoints(unittest.TestCase):
         new_ship_3.connect()
 
         res = new_ship_2.ping()
-        self.assertEqual(len(res.split(',')), 1)
+        self.assertEqual(len(res), 1)
 
         remove_entity(
             config['MainController']['hostIP'], 
