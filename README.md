@@ -122,18 +122,53 @@ At each time step, the simulator will iterate over all the ships, and determine 
 
 # API
 
-### new_entity_connect
-	ENDPOINT: /new_entity_connect
+### remove_entity
+	ENDPOint: /remove_entity
+	PARAMS:
+			entity_id: either a ship or station id
+	RETURNS:
+			status 200 if the entity was successfully removed, 400 otherwise
+
+	Does what it says on the tin.
+
+
+
+
+### add_ship
+	ENDPOINT: /add_ship
 	PARAMS: 
-			entity_type: either "ship" or "station"
-			entity_id: a unique ID for this entity
+            ship_id (str): New Ship ID
+            port (str): Entity port for Communication
+            address (str): Communication address of the ship
+            speed (str): Ship's Speed
+            comRange (str): Ship's Communication range
+            loc (tuple): Ships location
 	RETURNS: 
-			location: tuple, the x and y position of the new entity
+			200 if successful, 400 otherwise
 
-	This endpoint should be used by all new entities when they're instantiated to register with
-	the simulator. The simulator will then response with their location. If its a station, a random
-	location will be chosen. If its a ship, then if there are stations available, it will be spawned at one of them, otherwise it will be placed randomly.
+	Adds a new row in the ships dataframe.
 
+### add_ship
+	ENDPOINT: /add_station
+	PARAMS: 
+            station_id (str): New station ID
+            port (str): Entity port for Communication
+            address (str): Communication address of the ship
+            loc (tuple): Ships location
+	RETURNS: 
+			200 if successful, 400 otherwise
+
+	Adds a new row in the stations dataframe.	
+
+### update_details
+	ENDPOINT: /update_details
+	PARAMS:
+			entity_type (str): [description]
+            entity_id (str): ID of the  that needs to change
+            para (str): parameter to change
+            value (Union[str,tuple]): Details value
+	RETURNS:
+			200 if successful, 400 otherwise
 
 ### update
 	ENDPOINT: /update
@@ -150,10 +185,9 @@ At each time step, the simulator will iterate over all the ships, and determine 
 ### ping
 	ENDPOINT: /ping
 	PARAMS: 
-			src_id: the source entity UUID
-			location: the source location
+			entity_id: the source entity UUID
 	RETURNS:
-			entitys[List]: a list of UUIDs of any entities in radar range
+			entitys[List]: a json encoded list of UUIDs of any entities in radar range
 
 
 ### syn
