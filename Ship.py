@@ -25,6 +25,7 @@ class ship(SuperEntity):
         self.__itinerary = []
         self.__COMMUNICATION_RANGE = [100, 1000]
         self.__SPEED_RANGE = [100, 1000]
+        self.connect()
         pass
 
     @property
