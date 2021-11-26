@@ -1,4 +1,5 @@
 from flask import Flask, request, Response
+from flask.wrappers import Request
 import pandas as pd
 import numpy as np
 import datetime
@@ -18,9 +19,10 @@ class EndpointAction:
 
 class Controller:
     def __init__(self, host:str = "127.0.0.1", port: str = "3000", size:int = 100_000) -> None:
-        self.ship_details = pd.DataFrame(columns=['ship_id', 'port', 'address', 'speed', 'communicationRange', 'location', 'pingTime'])
-        self.station_details = pd.DataFrame(columns=['station_id', 'port', 'address', 'location', 'pingTime'])
+        self.ship_details = pd.DataFrame(columns=['ship_id', 'speed', 'communicationRange', 'location', 'pingTime'])
+        self.station_details = pd.DataFrame(columns=['station_id', 'location', 'pingTime'])
         self.communication_table = pd.DataFrame(columns=['Entity1Type', 'Entity1', 'Entity2Type', 'Entity2'])
+        self.messages = pd.DataFrame(columns=['source_id', 'destination_id', 'message'])
         self.host = host
         self.port = port
         self._app = None
@@ -70,34 +72,34 @@ class Controller:
         print(f"Starting the controller with address {self.host}")
         self._app.run(host=self.host, port=self.port)
 
-    def add_endpoint(self, endpoint, name, handler):
+    def add_endpoint(self, endpoint: str, name: str, handler: function) -> None:
         self._app.add_url_rule(endpoint, name, EndpointAction(handler), methods=['GET', "POST"])
     
-    def message_carry_reponse(self, request):
+    def message_carry_reponse(self, request: Request) -> Response:
         print(f"message_carry_reponse with {request}")
         res = Response(response=f"", status=400)
         return res
 
-    def message_carry_request(self, request):
+    def message_carry_request(self, request: Request) -> Response:
         print(f"message_carry_request with {request}")
         res = Response(response=f"", status=400)
         return res
 
-    def ack(self, request):
+    def ack(self, request: Request) -> Response:
         print(f"ack with {request}")
         res = Response(response=f"", status=400)
         return res
 
-    def syn(self, request):
+    def syn(self, request: Request) -> Response:
         print(f"syn with {request}")
         res = Response(response=f"", status=400)
         return res
     
-    def remove_entity(self, request):
+    def remove_entity(self, request: Request) -> Response:
         """Remove a ship or station
 
         Args:
-            shipID (str): New Ship ID
+            entity_id (str): New Ship ID
         """
         try:
             _id = request.form.get("entity_id")
@@ -117,11 +119,11 @@ class Controller:
             res = Response(response=f"Error handling remove_entity request: {repr(e)}", status=400)
         return res
 
-    def addShip(self, request):
+    def addShip(self, request: Request) -> Response:
         """Add new Ship details in the controler PI
 
         Args:
-            shipID (str): New Ship ID
+            ship_id (str): New Ship ID
             port (str): Entity port for Communication
             address (str): Communication address of the ship
             speed (str): Ship's Speed
@@ -130,15 +132,11 @@ class Controller:
         """
         try:
             ship_id = request.form.get("ship_id")
-            port = request.form.get("port")
-            address = request.form.get("address")
             speed = request.form.get("speed")
             comRange = request.form.get("comRange")
             loc = request.form.getlist("loc")
             self.ship_details.loc[self.ship_details.shape[0]] = {
                 'ship_id':ship_id,
-                'port':port,
-                'address':address,
                 'speed':speed,
                 'communicationRange':comRange,
                 'location':f'x:{loc[0]}, y:{loc[1]}',
@@ -149,25 +147,20 @@ class Controller:
             res = Response(response=f"Error handling addShip request: {repr(e)}", status=400)
         return res
 
-    def addStation(self, request):
+    def addStation(self, request: Request) -> Response:
         """Add new Ship details in the controler PI
 
         Args:
-            StationID (str): New Station ID
+            station_id (str): New Station ID
             port (str): Entity port for Communication
             address (str): Communication address of the ship
             loc (tuple): Ships location
         """
         try:
             station_id = request.form.get("station_id")
-            port = request.form.get("port")
-            address = request.form.get("address")
             loc = request.form.getlist("loc")
-            print(self.station_details.shape[0])
             self.station_details.loc[self.station_details.shape[0]] = {
                 'station_id':station_id,
-                'port':port,
-                'address':address,
                 'location':f'x:{loc[0]}, y:{loc[1]}',
                 'pingTime': datetime.now()
             }
@@ -177,29 +170,34 @@ class Controller:
             res = Response(response=f"Error handling addStation request: {repr(e)}", status=400)
         return res
 
-    def updateDetails(self, request):
+    def updateDetails(self, request: Request) -> Response:
         """[summary]
 
         Args:
-            entityType (str): [description]
-            ID (str): ID of the  that needs to change
+            entity_type (str): [description]
+            entity_id (str): ID of the  that needs to change
             para (str): parameter to change
             value (Union[str,tuple]): Details value
         """
-        entityType = request.form.get("entityType")
-        ID = request.form.get("ID")
-        para = request.form.get("para")
-        value = request.form.get("value")
-        if isinstance(value, tuple) & para == 'location':
-            val = 'x:{}, y:{}'.format(value[0], value[1])
-        else:
-            val = value
-        if entityType == 'ship':
-            self.ship_details.loc[self.ship_details['ShipID'] == ID, para] = val
-        elif entityType == 'station':
-            self.station_details.loc[self.station_details['StationID'] == ID, para] = val
+        try:
+            entityType = request.form.get("entity_type")
+            _id = request.form.get("entity_id")
+            para = request.form.get("para")
+            value = request.form.get("value")
+            if isinstance(value, tuple) & para == 'location':
+                val = f'x:{value[0]}, y:{value[1]}'
+            else:
+                val = value
+            if entityType == 'ship':
+                self.ship_details.loc[self.ship_details['ship_id'] == _id, para] = val
+            elif entityType == 'station':
+                self.station_details.loc[self.station_details['station_id'] == _id, para] = val
+            res = Response(response=f"entity with id {_id} has been updated", status=200)
+        except Exception as e:
+            res = Response(response=f"failed to update {_id}, error: {repr(e)}", status=200)
+        return res
 
-    def communicationPairing(self):
+    def communicationPairing(self) -> None:
         for i in range(self.ship_details.shape[0]):
             strloc1 = self.ship_details.loc[i, 'location']
             range1 = int(self.ship_details.loc[i, 'CommunicationRange'])
@@ -212,9 +210,9 @@ class Controller:
                 if dist <= range1 and dist <= range2:
                     self.communication_table.loc[self.communication_table.shape[0]] = {
                         'Entity1Type':'ship',
-                        'Entity1':self.ship_details.loc[i, 'ShipID'],
+                        'Entity1':self.ship_details.loc[i, 'ship_id'],
                         'Entity2Type':'ship',
-                        'Entity2':self.ship_details.loc[j, 'ShipID']
+                        'Entity2':self.ship_details.loc[j, 'ship_id']
                     }
             for j in range(self.station_details.shape[0]):
                 strloc2 = self.station_details.loc[j, 'location']
@@ -223,28 +221,28 @@ class Controller:
                 if dist <= range1:
                     self.communication_table.loc[self.communication_table.shape[0]] = {
                         'Entity1Type':'ship',
-                        'Entity1':self.ship_details.loc[i, 'ShipID'],
+                        'Entity1':self.ship_details.loc[i, 'ship_id'],
                         'Entity2Type':'station',
-                        'Entity2':self.station_details.loc[j, 'StationID']
+                        'Entity2':self.station_details.loc[j, 'station_id']
                     }
     
-    def ping(self, request):
+    def ping(self, request: Request) -> Response:
         """[summary]
 
         Args:
-            shipID: the id of the ship which needs to be pinged
+            entity_id: the id of the ship which needs to be pinged
         """
         try:
-            shipID = request.args.get("entity_id")
+            entity_id = request.args.get("entity_id")
             output = []
-            print(shipID)
+            print(entity_id)
             print(self.ship_details)
-            location = self.ship_details.loc[self.ship_details['ship_id']==shipID]['location'].to_string(index=False)
-            communication_range = self.ship_details.loc[self.ship_details['ship_id']==shipID]['communicationRange'].to_string(index=False)
+            location = self.ship_details.loc[self.ship_details['ship_id']==entity_id]['location'].to_string(index=False)
+            communication_range = self.ship_details.loc[self.ship_details['ship_id']==entity_id]['communicationRange'].to_string(index=False)
             loc1 = np.array(list(map(float, np.array(re.findall(r'\d+', location)))))
             print(loc1)
             for i in range(self.ship_details.shape[0]):
-                if self.ship_details.loc[i, 'ship_id'] == shipID:
+                if self.ship_details.loc[i, 'ship_id'] == entity_id:
                     continue
                 else:
                     str_loc2 = self.ship_details.loc[i, 'location']
