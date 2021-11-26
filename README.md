@@ -131,9 +131,6 @@ At each time step, the simulator will iterate over all the ships, and determine 
 
 	Does what it says on the tin.
 
-
-
-
 ### add_ship
 	ENDPOINT: /add_ship
 	PARAMS: 
