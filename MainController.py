@@ -6,7 +6,7 @@ import datetime
 import re
 from datetime import datetime
 import json
-
+from Ship import ship
 
 class EndpointAction:
     def __init__(self, action):
@@ -17,7 +17,7 @@ class EndpointAction:
         self.response = self.action(request)
         return self.response
 
-class Controller:
+class Controller(ship):
     def __init__(self, host:str = "127.0.0.1", port: str = "3000", size:int = 100_000) -> None:
         self.ship_details = pd.DataFrame(columns=['ship_id', 'speed', 'communicationRange', 'location', 'pingTime'])
         self.station_details = pd.DataFrame(columns=['station_id', 'location', 'pingTime'])
