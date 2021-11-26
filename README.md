@@ -138,8 +138,6 @@ At each time step, the simulator will iterate over all the ships, and determine 
 	ENDPOINT: /add_ship
 	PARAMS: 
             ship_id (str): New Ship ID
-            port (str): Entity port for Communication
-            address (str): Communication address of the ship
             speed (str): Ship's Speed
             comRange (str): Ship's Communication range
             loc (tuple): Ships location
@@ -152,8 +150,6 @@ At each time step, the simulator will iterate over all the ships, and determine 
 	ENDPOINT: /add_station
 	PARAMS: 
             station_id (str): New station ID
-            port (str): Entity port for Communication
-            address (str): Communication address of the ship
             loc (tuple): Ships location
 	RETURNS: 
 			200 if successful, 400 otherwise

@@ -18,8 +18,8 @@ class EndpointAction:
 
 class Controller:
     def __init__(self, host:str = "127.0.0.1", port: str = "3000", size:int = 100_000) -> None:
-        self.ship_details = pd.DataFrame(columns=['ship_id', 'port', 'address', 'speed', 'communicationRange', 'location', 'pingTime'])
-        self.station_details = pd.DataFrame(columns=['station_id', 'port', 'address', 'location', 'pingTime'])
+        self.ship_details = pd.DataFrame(columns=['ship_id', 'speed', 'communicationRange', 'location', 'pingTime'])
+        self.station_details = pd.DataFrame(columns=['station_id', 'location', 'pingTime'])
         self.communication_table = pd.DataFrame(columns=['Entity1Type', 'Entity1', 'Entity2Type', 'Entity2'])
         self.host = host
         self.port = port
@@ -130,15 +130,11 @@ class Controller:
         """
         try:
             ship_id = request.form.get("ship_id")
-            port = request.form.get("port")
-            address = request.form.get("address")
             speed = request.form.get("speed")
             comRange = request.form.get("comRange")
             loc = request.form.getlist("loc")
             self.ship_details.loc[self.ship_details.shape[0]] = {
                 'ship_id':ship_id,
-                'port':port,
-                'address':address,
                 'speed':speed,
                 'communicationRange':comRange,
                 'location':f'x:{loc[0]}, y:{loc[1]}',
@@ -160,13 +156,9 @@ class Controller:
         """
         try:
             station_id = request.form.get("station_id")
-            port = request.form.get("port")
-            address = request.form.get("address")
             loc = request.form.getlist("loc")
             self.station_details.loc[self.station_details.shape[0]] = {
                 'station_id':station_id,
-                'port':port,
-                'address':address,
                 'location':f'x:{loc[0]}, y:{loc[1]}',
                 'pingTime': datetime.now()
             }
