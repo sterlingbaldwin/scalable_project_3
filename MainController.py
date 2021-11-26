@@ -1,4 +1,5 @@
 from flask import Flask, request, Response
+from flask.wrappers import Request
 import pandas as pd
 import numpy as np
 import datetime
@@ -21,6 +22,7 @@ class Controller:
         self.ship_details = pd.DataFrame(columns=['ship_id', 'speed', 'communicationRange', 'location', 'pingTime'])
         self.station_details = pd.DataFrame(columns=['station_id', 'location', 'pingTime'])
         self.communication_table = pd.DataFrame(columns=['Entity1Type', 'Entity1', 'Entity2Type', 'Entity2'])
+        self.messages = pd.DataFrame(columns=['source_id', 'destination_id', 'message'])
         self.host = host
         self.port = port
         self._app = None
@@ -70,30 +72,30 @@ class Controller:
         print(f"Starting the controller with address {self.host}")
         self._app.run(host=self.host, port=self.port)
 
-    def add_endpoint(self, endpoint, name, handler):
+    def add_endpoint(self, endpoint: str, name: str, handler: function) -> None:
         self._app.add_url_rule(endpoint, name, EndpointAction(handler), methods=['GET', "POST"])
     
-    def message_carry_reponse(self, request):
+    def message_carry_reponse(self, request: Request) -> Response:
         print(f"message_carry_reponse with {request}")
         res = Response(response=f"", status=400)
         return res
 
-    def message_carry_request(self, request):
+    def message_carry_request(self, request: Request) -> Response:
         print(f"message_carry_request with {request}")
         res = Response(response=f"", status=400)
         return res
 
-    def ack(self, request):
+    def ack(self, request: Request) -> Response:
         print(f"ack with {request}")
         res = Response(response=f"", status=400)
         return res
 
-    def syn(self, request):
+    def syn(self, request: Request) -> Response:
         print(f"syn with {request}")
         res = Response(response=f"", status=400)
         return res
     
-    def remove_entity(self, request):
+    def remove_entity(self, request: Request) -> Response:
         """Remove a ship or station
 
         Args:
@@ -117,7 +119,7 @@ class Controller:
             res = Response(response=f"Error handling remove_entity request: {repr(e)}", status=400)
         return res
 
-    def addShip(self, request):
+    def addShip(self, request: Request) -> Response:
         """Add new Ship details in the controler PI
 
         Args:
@@ -145,7 +147,7 @@ class Controller:
             res = Response(response=f"Error handling addShip request: {repr(e)}", status=400)
         return res
 
-    def addStation(self, request):
+    def addStation(self, request: Request) -> Response:
         """Add new Ship details in the controler PI
 
         Args:
@@ -168,7 +170,7 @@ class Controller:
             res = Response(response=f"Error handling addStation request: {repr(e)}", status=400)
         return res
 
-    def updateDetails(self, request):
+    def updateDetails(self, request: Request) -> Response:
         """[summary]
 
         Args:
@@ -195,7 +197,7 @@ class Controller:
             res = Response(response=f"failed to update {_id}, error: {repr(e)}", status=200)
         return res
 
-    def communicationPairing(self):
+    def communicationPairing(self) -> None:
         for i in range(self.ship_details.shape[0]):
             strloc1 = self.ship_details.loc[i, 'location']
             range1 = int(self.ship_details.loc[i, 'CommunicationRange'])
@@ -224,7 +226,7 @@ class Controller:
                         'Entity2':self.station_details.loc[j, 'station_id']
                     }
     
-    def ping(self, request):
+    def ping(self, request: Request) -> Response:
         """[summary]
 
         Args:
