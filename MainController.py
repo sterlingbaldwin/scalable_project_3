@@ -97,7 +97,7 @@ class Controller:
         """Remove a ship or station
 
         Args:
-            shipID (str): New Ship ID
+            entity_id (str): New Ship ID
         """
         try:
             _id = request.form.get("entity_id")
@@ -121,7 +121,7 @@ class Controller:
         """Add new Ship details in the controler PI
 
         Args:
-            shipID (str): New Ship ID
+            ship_id (str): New Ship ID
             port (str): Entity port for Communication
             address (str): Communication address of the ship
             speed (str): Ship's Speed
@@ -153,7 +153,7 @@ class Controller:
         """Add new Ship details in the controler PI
 
         Args:
-            StationID (str): New Station ID
+            station_id (str): New Station ID
             port (str): Entity port for Communication
             address (str): Communication address of the ship
             loc (tuple): Ships location
@@ -163,7 +163,6 @@ class Controller:
             port = request.form.get("port")
             address = request.form.get("address")
             loc = request.form.getlist("loc")
-            print(self.station_details.shape[0])
             self.station_details.loc[self.station_details.shape[0]] = {
                 'station_id':station_id,
                 'port':port,
@@ -181,23 +180,28 @@ class Controller:
         """[summary]
 
         Args:
-            entityType (str): [description]
-            ID (str): ID of the  that needs to change
+            entity_type (str): [description]
+            entity_id (str): ID of the  that needs to change
             para (str): parameter to change
             value (Union[str,tuple]): Details value
         """
-        entityType = request.form.get("entityType")
-        ID = request.form.get("ID")
-        para = request.form.get("para")
-        value = request.form.get("value")
-        if isinstance(value, tuple) & para == 'location':
-            val = 'x:{}, y:{}'.format(value[0], value[1])
-        else:
-            val = value
-        if entityType == 'ship':
-            self.ship_details.loc[self.ship_details['ShipID'] == ID, para] = val
-        elif entityType == 'station':
-            self.station_details.loc[self.station_details['StationID'] == ID, para] = val
+        try:
+            entityType = request.form.get("entity_type")
+            _id = request.form.get("entity_id")
+            para = request.form.get("para")
+            value = request.form.get("value")
+            if isinstance(value, tuple) & para == 'location':
+                val = f'x:{value[0]}, y:{value[1]}'
+            else:
+                val = value
+            if entityType == 'ship':
+                self.ship_details.loc[self.ship_details['ship_id'] == _id, para] = val
+            elif entityType == 'station':
+                self.station_details.loc[self.station_details['station_id'] == _id, para] = val
+            res = Response(response=f"entity with id {_id} has been updated", status=200)
+        except Exception as e:
+            res = Response(response=f"failed to update {_id}, error: {repr(e)}", status=200)
+        return res
 
     def communicationPairing(self):
         for i in range(self.ship_details.shape[0]):
@@ -212,9 +216,9 @@ class Controller:
                 if dist <= range1 and dist <= range2:
                     self.communication_table.loc[self.communication_table.shape[0]] = {
                         'Entity1Type':'ship',
-                        'Entity1':self.ship_details.loc[i, 'ShipID'],
+                        'Entity1':self.ship_details.loc[i, 'ship_id'],
                         'Entity2Type':'ship',
-                        'Entity2':self.ship_details.loc[j, 'ShipID']
+                        'Entity2':self.ship_details.loc[j, 'ship_id']
                     }
             for j in range(self.station_details.shape[0]):
                 strloc2 = self.station_details.loc[j, 'location']
@@ -223,28 +227,28 @@ class Controller:
                 if dist <= range1:
                     self.communication_table.loc[self.communication_table.shape[0]] = {
                         'Entity1Type':'ship',
-                        'Entity1':self.ship_details.loc[i, 'ShipID'],
+                        'Entity1':self.ship_details.loc[i, 'ship_id'],
                         'Entity2Type':'station',
-                        'Entity2':self.station_details.loc[j, 'StationID']
+                        'Entity2':self.station_details.loc[j, 'station_id']
                     }
     
     def ping(self, request):
         """[summary]
 
         Args:
-            shipID: the id of the ship which needs to be pinged
+            entity_id: the id of the ship which needs to be pinged
         """
         try:
-            shipID = request.args.get("entity_id")
+            entity_id = request.args.get("entity_id")
             output = []
-            print(shipID)
+            print(entity_id)
             print(self.ship_details)
-            location = self.ship_details.loc[self.ship_details['ship_id']==shipID]['location'].to_string(index=False)
-            communication_range = self.ship_details.loc[self.ship_details['ship_id']==shipID]['communicationRange'].to_string(index=False)
+            location = self.ship_details.loc[self.ship_details['ship_id']==entity_id]['location'].to_string(index=False)
+            communication_range = self.ship_details.loc[self.ship_details['ship_id']==entity_id]['communicationRange'].to_string(index=False)
             loc1 = np.array(list(map(float, np.array(re.findall(r'\d+', location)))))
             print(loc1)
             for i in range(self.ship_details.shape[0]):
-                if self.ship_details.loc[i, 'ship_id'] == shipID:
+                if self.ship_details.loc[i, 'ship_id'] == entity_id:
                     continue
                 else:
                     str_loc2 = self.ship_details.loc[i, 'location']
