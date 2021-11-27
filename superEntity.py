@@ -27,6 +27,15 @@ class SuperEntity:
             tuple[float]: x and y cordinates of the ships.
         """
         return self.__loc
+
+    @property
+    def id(self):
+        """Getter function of entity ID function
+
+        Returns:
+            [str]: ID of Entity
+        """
+        return self._id
     
     @loc.setter
     def loc(self, inp: tuple):
