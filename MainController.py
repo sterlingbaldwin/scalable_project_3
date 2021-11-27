@@ -18,7 +18,8 @@ class EndpointAction:
         return self.response
 
 class Controller(ship):
-    def __init__(self, host:str = "127.0.0.1", port: str = "3000", size:int = 100_000) -> None:
+    def __init__(self, shipID:str, simulator_address: str, shipPort: str, host:str = "127.0.0.1", port: str = "3000", size:int = 100_000) -> None:
+        super().__init__(shipID, simulator_address, shipPort)
         self.ship_details = pd.DataFrame(columns=['ship_id', 'speed', 'communicationRange', 'location', 'pingTime'])
         self.station_details = pd.DataFrame(columns=['station_id', 'location', 'pingTime'])
         self.communication_table = pd.DataFrame(columns=['Entity1Type', 'Entity1', 'Entity2Type', 'Entity2'])
@@ -114,7 +115,7 @@ class Controller(ship):
                 res = Response(response=f"Station with id={_id} has been removed", status=200)
                 return res
             
-            res = Response(response="Unable to find entity with id {_id}", status=400)
+            res = Response(response=f"Unable to find entity with id {_id}", status=400)
         except Exception as e:
             res = Response(response=f"Error handling remove_entity request: {repr(e)}", status=400)
         return res
