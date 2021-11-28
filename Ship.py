@@ -25,6 +25,7 @@ class ship(SuperEntity):
         self.__itinerary = []
         self.__COMMUNICATION_RANGE = [100, 1000]
         self.__SPEED_RANGE = [100, 1000]
+        self._messages = []
         self.connect()
         pass
 
@@ -67,6 +68,13 @@ class ship(SuperEntity):
             'loc': self.loc
         }
         return self.make_request_to_controller('add_ship', params, method="POST")
+    
+    def update(self):
+        """[summary]
+        
+            update the speed, location, range
+        """
+        pass
 
 if __name__ == "__main__":
     pass
