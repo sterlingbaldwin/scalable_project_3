@@ -1,6 +1,5 @@
 import unittest
 from Ship import ship
-from Station import station
 import configparser
 import requests
 from uuid import uuid4
@@ -29,22 +28,6 @@ class TestControllerEndpoints(unittest.TestCase):
         new_ship.speed = 120
         new_ship.range = 500
         res = new_ship.connect()
-        self.assertEqual(res.status_code, 200)
-
-        remove_entity(
-            config['MainController']['hostIP'], 
-            config['MainController']['port'],
-            _id)
-        
-    def test_add_station(self):
-        _id = uuid4().hex
-        new_station = station(
-            population=10,
-            station_id = _id,
-            simulator_address = config['MainController']['hostIP'],
-            port=config['MainController']['port']
-        )
-        res = new_station.connect()
         self.assertEqual(res.status_code, 200)
 
         remove_entity(
