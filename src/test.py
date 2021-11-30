@@ -1,5 +1,5 @@
 import unittest
-from Ship import ship
+from ship import ship
 import configparser
 import requests
 from uuid import uuid4
