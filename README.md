@@ -91,7 +91,7 @@ A Ship is basically a much smaller mobile station. The crew on a ship may also g
 	* Message list, a list of the messages the ship is carrying
 	* Communication range, a potentially fixed radius around the ship that its able to transmit messages. If we get fancy, we can decide to have this variable between ships to make things more interesting.
 	* Speed, the rate of movement through the celestial aether.	
-    * A bunch of simulated sensor stuff, TBD
+	* A bunch of simulated sensor stuff, TBD
 
 ## Network Controller
 
@@ -119,38 +119,38 @@ The simulation of base reality. The simulator manages both the entity and the co
 			entity_id: either a ship or station id
 	RETURNS:
 			status 200 if the entity was successfully removed, 400 otherwise
-
+	
 	Does what it says on the tin.
 
 ### add_ship
 	ENDPOINT: /add_ship
 	PARAMS: 
-            ship_id (str): New Ship ID
-            speed (str): Ship's Speed
-            comRange (str): Ship's Communication range
-            loc (tuple): Ships location
+	        ship_id (str): New Ship ID
+	        speed (str): Ship's Speed
+	        comRange (str): Ship's Communication range
+	        loc (tuple): Ships location
 	RETURNS: 
 			200 if successful, 400 otherwise
-
+	
 	Adds a new row in the ships dataframe.
 
 ### add_ship
 	ENDPOINT: /add_station
 	PARAMS: 
-            station_id (str): New station ID
-            loc (tuple): Ships location
+	        station_id (str): New station ID
+	        loc (tuple): Ships location
 	RETURNS: 
 			200 if successful, 400 otherwise
-
+	
 	Adds a new row in the stations dataframe.	
 
 ### update_details
 	ENDPOINT: /update_details
 	PARAMS:
 			entity_type (str): [description]
-            entity_id (str): ID of the  that needs to change
-            para (str): parameter to change
-            value (Union[str,tuple]): Details value
+	        entity_id (str): ID of the  that needs to change
+	        para (str): parameter to change
+	        value (Union[str,tuple]): Details value
 	RETURNS:
 			200 if successful, 400 otherwise
 
@@ -162,7 +162,7 @@ The simulation of base reality. The simulator manages both the entity and the co
 	RETURNS: 
 			location: the new position of the craft
 			messages: a list of message objects
-
+	
 	This is the start of an entities update cycle. It sends to the simulator its speed, and gets its updated position and any messages that are bound for it.
 
 
@@ -181,7 +181,7 @@ The simulation of base reality. The simulator manages both the entity and the co
 			dst_id: the destination entity UUID
 	RETURNS:
 			void
-
+	
 	This is the endpoint used by an entity to establish a communication channel with another entity
 
 
@@ -216,4 +216,131 @@ The simulation of base reality. The simulator manages both the entity and the co
 			void
 	
 	This is the response to being send a message asking to carry other messages
+
+
+
+# Version 2
+
+# API Calls
+
+## Controller Server
+
+### add_controller
+
+```
+ENDPOINT: /add_controller
+[summary]: Add a new controller to the controller list
+Params: 
+	[ShipID: str]: The id of the controller ship
+Return:
+	[id]: str: The controller's id
+```
+
+### remove_Controller
+
+```
+ENDPOINT: /remove_controller
+[summary]: Remove a controller in the controller list
+Params:
+	[ShipID: str]: The id of the controller ship
+Return:
+	[id: str]: The controller's id
+```
+
+### route_message
+
+```
+ENDPOINT: /route_message
+[summary]: route the message from the source ship to the destination
+Params:
+	[source_id: str]: The id of the source ship
+	[destination_id: str]: The id of the destination ship
+	[message: Message]: The message from sources
+Return:
+	void
+	[If the message is common message, will add the message to the destination ship
+	 If the message is an speed message, will slow down/accelerate the destination ship
+	 If the message is an action message, will give the destination specific action]
+```
+
+### Get_controller
+
+```
+ENDPOINT: /get_controller
+[summary]: Get the controller list
+Params:
+	None
+Return
+	[controller_list: array]: The list of the controller
+```
+
+### ping
+
+```
+ENDPOINT: /ping
+[summary]: Get the ships in range
+Params:
+	[id: str]: The id of the ship
+Return
+	[ship_list: array]: The list of the ships in range
+```
+
+
+
+## Entity(Network) server
+
+### add_ship
+
+```
+ENDPOINT: /add_ship
+[summary]: Add a new ship to the ship detail list
+Params: 
+	[ShipID: str]: The id of the ship
+Return:
+	[id]: str: The ship's id
+```
+
+### remove_ship
+
+```
+ENDPOINT: /remove_ship
+[summary]: remove a ship from the ship detail list
+Params: 
+	[ShipID: str]: The id of the ship
+Return:
+	[id]: str: The ship's id
+```
+
+### get_network
+
+```
+ENDPOINT: /get_network
+[summary]: Calcualte the network from the ship detail list and returns
+Params: 
+	[shipID: str]: The id of the ship
+Return:
+	[network: list]: The network of the ship located
+```
+
+### add_to_network
+
+```
+ENDPOINT: /add_to_network
+[summary]: Add the ship to the network
+Params: 
+	[shipID: str]: The id of the ship
+Return:
+	[network: list]: The updated network list
+```
+
+### ping
+
+```
+ENDPOINT: /ping
+[summary]: Get the ships in range
+Params:
+	[id: str]: The id of the ship
+Return
+	[ship_list: array]: The list of the ships in range
+```
 

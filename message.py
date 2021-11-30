@@ -2,12 +2,17 @@ from enum import Enum
 from dataclasses import dataclass
 
 class MessageType(Enum):
-    syn = 1
-    ack = 2
-    mail = 3
-    carry_request = 4
-    carry_response = 5
-
+    """
+    message type for the ship communication
+    - message: pass the message
+    - change_speed: change the speed of the ship
+    - stop: stop the ship
+    - fix: fix the ship
+    """
+    message: 1
+    change_speed: 2
+    stop: 3
+    fix: 4
 
 @dataclass
 class Message:
