@@ -44,7 +44,8 @@ def main():
         sim()
     except KeyboardInterrupt:
         print("Caught keyboard interrupt")
-        sim.terminate()
+        sim.shutdown_services()
+        sim.shutdown()
     return 0
 
 

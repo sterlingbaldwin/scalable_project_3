@@ -2,15 +2,17 @@
     This module contains the server that is responsible for
     managing all the network controllers.
 """
+import argparse
+import sys
 from flask import Response
 from flask.wrappers import Request
 from server import Server
 from network_controller import NetworkController
 
 class ControllerManager(Server):
-    def __init__(self) -> None:
+    def __init__(self, *args, **kwargs) -> None:
+        super(*args, **kwargs)
         self._controller_list = []
-        pass
 
     def __call__(self) -> None:
         super().__call__()
@@ -22,7 +24,7 @@ class ControllerManager(Server):
             endpoint='/remove_controller',
             name='remove_controller',
             handler=self.remove_controller)
-        self._app.run()
+        self._app.run(self._address, self._port)
 
     def add_controller(self, request: Request):
         """
@@ -64,5 +66,18 @@ class ControllerManager(Server):
             res = Response(response=f"Error handling remove_controller request: {repr(e)}", status=400)
         return res
     
-
-
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Run the ControllerManager")
+    parser.add_argument(
+        '--address',
+        type=int)
+    parser.add_argument(
+        "--host",
+        type=str)
+    args = parser.parse_args()
+    em = ControllerManager(
+        address=args.address,
+        port=args.port)
+    em.start()
+    sys.exit(0)
