@@ -10,9 +10,12 @@ Space Mail!
 ## Version 1
 - Ships.py: Newly created file contains the ships class
 - ShipControlerManagement.py: Functions for Ship mangement from the controler end
-- StationaryStations.py: Contains the code for the Starting and end points stationay stations for the ships to traverse between.
+- StationaryStations.py: Contains the code for the Starting and end points stationay stations for the ships to traverse between. (Removed in version 2)
 
-
+## Version 2
+- EntityServer.py: Server type that manages all the existing ship entities in the network. This server is also responsible for the management of the network creationa and network controller selection.
+- ControllerServer.py: Manages all the network controllers. It handles all incoming requests (including manually injected messages) and redirects the message to the coresponding controller.
+- GodServer.py: A server that handles the complete virtualization. It is responsible for initializing objects and handling the controller
 ## Running the thing
 
 There are two commands that need to be run (may be unified in the future), first you need to launch the simulator on an allowed port, and then you need to start the script which launches the entities (just stations for the moment).
@@ -50,37 +53,25 @@ Because the ssh connection needs to activate the virtual env, you'll need to hav
 
 In the future we can make this configurable, but right now just put the repo under $HOME/projects/ and put your venv there and it should work.
 
-
 # Project Outline
 
 The purpose of this project is to simulate sending email (space mail) between entities in the solar system, who have no direct method of communication (no phone lines between Earth and Mars) and so must rely on currier ships. There are four simulated entity types:
 
 	* Messages: These are the data objects which make their way from a source to their destination
-	* Stations: These are stationary objects which generate and receive messages.
-	* Ships: These carry messages between stations, and exchange them with other ships.
+	* Ships: These entities are present in the space. Multiple ships form an ephimeral network with one of the network acting as the network controller.
+	* Network controller: It is the onldest node in the network which acts as the bridging node for all communication that happen withing the network.
+	* Entity Server: It is the server that controls all the ships present in space. It is also responsible for managing and updating the ephimeral networks.
+	* Controller Server: This server is responsible for handling the network controller ships. It redirects the messages to the corresponding network and manages the flow messages including the ones manually injected in the system.
 	* Physics Simulator: In the real world we would call this base reality, however since were not actually sending email to Neptune we’ve gotta simulate it somehow. The physics simulator keeps track of the global state of the system, and mediates communication between the other entities.
 
-Each of the entities exists in a sepperates process, and must use HTTP to communicate. The entities will be spread over the available raspberry pis. Although we only have two pis to work with, the design should work with any number. During initialization, the simulator is created first, and sits waiting for entities to connect to it. As each ship and station is instantiated, it will reach out to the simulator to register its existance.
+There exists multiple ships in open space. Each ship has a communication range, multiple interconnected ships thus creating a chained network. All communication in the network are controlled, managed and acted on by the oldest node in the network (network controller). The simulator will initialize a new ship at a random time, location, speed and communication range. 
 
-Each entity will have its own timer and update cycle of some constant ```alpha + uniform(0., beta)```, and during its update will perform the following actions:
+The simulator is also responsible for triggering an update function. Each entity will have its update cycle, and during its update will perform the following actions:
 
-1. Send an update message to the simulator with its ID, and speed vector. The simulator will respond with the computed new position from the time delta from last update and the speed. The simulator will also include any messages sent to the craft from other entities since its last update.
-
-2. If the messages include any message_carry requests, it will send the requested messages.
-
-
-3. The craft will send a radar update request to the simulator, where it will be told of any other craft in radar range. The simulator will respond with the ranges to other entities, and the craft then decides if it should attempt to communicate with them based on its transmission range.
-
-
-4. Given the results of the radar update, for any new craft in range, the craft will send handshake messages to the simulator bound for the other craft, which they will recieve during their update.
-
-
-5. If the craft just recieved the handshake response from another craft, it will now transmit the destination list of its message buffer along with its itinerary.
-
-
-6. If the craft just recieved a destination list of other entities messages buffers, it will check its itinerary, and if its going to be visiting any of the destinations before the other craft (or some other heuristic, for example if it will be getting closer but not actually going to a destination it might request those messages, assuming it'll bump into another craft it can), will transmit which messages its willing to carry. 
-
-
+1. Updated locations of the ships basis the delta time difference since the last update and the speed of the ship.
+2. Check if any new ship connections have been mande basis the updated locations.
+3. Create/Updated the ephimeral network basis the new ship positions and connections. This would also including merging of networks there is communication chain link created between the two.
+4. Create any new network controllers in case of a newly initiated network. Remove a controller of the smaller network in the event where two networks merge to create a single ephimeral network.
 
 ## Message
 
@@ -91,18 +82,9 @@ The message object is our atomic data unit and consists of the following:
 	* checksum
 	* if we have time and decide to get fancy, public key of the sender
 
-## Station
-
-As you may guess from their name, a Station is a stationary object. They have a population who generate and transmit/receive messages. A station has the following attributes:
-
-	* Name, the station identifier
-	* Population, a list of people. The population simulation doesn’t need to be fancy at all, just a list of randomly generated names  to be used for sending/recieving messages.
-	* Population size, this is used to determine the rate of message generation.
-	* Location, the physical location of the station.
-
 ## Ship
 
-A Ship is basically a much smaller mobile station. The crew on a ship may also generate and receive messages, but at a much lower rate then a station. Ships have the following:
+A Ship is basically a much smaller mobile station. The crew on a ship may also generate and receive messages. The ships can only communicate with other ships which are in its commication reange and effectively relay infromation to the nodes that are part of the ephimeral network. Ships have the following:
 
 	* Name, the ship identifier
 	* Crew, a relatively small number of people on the ship
@@ -111,14 +93,23 @@ A Ship is basically a much smaller mobile station. The crew on a ship may also g
 	* Speed, the rate of movement through the celestial aether.	
     * A bunch of simulated sensor stuff, TBD
 
+## Network Controller
+
+A ship that is the oldest entity in the network. It processes every messages that is passed throught the network. The messages may be inter ship communications, action messages or those that need to be processed before being relayed as a broadcast message to all the nodes in the network. A controller has the following
+
+	* All properties of a ship
+	* List of ships that are part of the Ephimeral network.
+	* Capability to mange and process the messages being relayed throught he network.
+
+## Entity Server
+A server that handles all the ships. It is responsible for manageing and creating ephimeral networks and updating the ship and the network properties with respet to time. It is also responsible for updating and nominating the network controller.
+
+## Controller Server
+Like the entity server this server is reponsible for handling all the network controllers. The controllers server handles all the externally injected messages comming into the ntwork and accordingly routing it throught the main controller that is responsible for the relaing the information the the intended ship.
+
 ## Physics Simulator
 
-The simulation of base reality. This will keep track of all the locations of the ships/stations and let them know who they can communicate with. Although its tempting to try and do a fancy simulation of the orbital mechanics involved in the actual solar system, I (Sterling) believe it to be out of scope of our project, and so I think just a regular 2d grid without a sun, and with the stations assigned to random locations is fine. The simulator will need:
-
-    * A list of stations
-    * A list of ships
-
-At each time step, the simulator will iterate over all the ships, and determine if they're in communication range with any other ships or stations. 
+The simulation of base reality. The simulator manages both the entity and the controller server. The simulator randomly injects new ships in the network and removes a few. The Simulator is also responsible for triggering the update operation that runs on all the ships to update their properties. The simulator will also be responsible for injecting new and random events in the system triggering actions by the controllers and effectivly the ships in the network.
 
 # API
 
