@@ -5,22 +5,19 @@
     a sepperate device.
 """
 from flask.wrappers import Request, Response
+import sys
+import argparse
 import numpy as np
 import pandas as pd
 from server import Server
 from ship import ship
 
-class EntityServer(Server):
-    def __init__(self) -> None:
-        super().__init__()
+class EntityManager(Server):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self._element_details = {}
         self.__max_network = 0
-        # self._network_details = pd.DataFrame(columns=['network', 'elementCount'])
         self._network_details = pd.DataFrame(columns=['ship_id', 'network'])
-        pass
-    
-    def __call__(self) -> None:
-        super().__call__()
         self.add_endpoint(
             endpoint='/add_ship',
             name='add_ship',
@@ -29,7 +26,6 @@ class EntityServer(Server):
             endpoint='/remove_ship',
             name='remove_ship',
             handler=self.remove_ship)
-        self._app.run()
     
     def add_ship(self, request: Request):
         """
@@ -122,3 +118,19 @@ class EntityServer(Server):
         self._network_details.loc[self._network_details['network'].isin(networkList), 'network'] = maxnetwork
         for ship_id in list(self._network_details.loc[self._network_details['network'].isin(networkList), 'ship_id']):
             self._element_details[ship_id].network = maxnetwork
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Run the EntityManager")
+    parser.add_argument(
+        '--address',
+        type=int)
+    parser.add_argument(
+        "--host",
+        type=str)
+    args = parser.parse_args()
+    em = EntityManager(
+        address=args.address,
+        port=args.port)
+    em.start()
+    sys.exit(0)
