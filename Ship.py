@@ -26,6 +26,7 @@ class ship(SuperEntity):
         self.__COMMUNICATION_RANGE = [100, 1000]
         self.__SPEED_RANGE = [100, 1000]
         self._messages = []
+        self.network = None
         self.connect()
         pass
 
