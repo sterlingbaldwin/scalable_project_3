@@ -1,6 +1,11 @@
-#! ./.venv/bin/python
+"""
+    The Ship class are the message curriers and network nodes
+    that make up the meat and potatoes of the simulated networks.
+    They're contained as records in the EntityManager, and some of
+    them become network controllers.
+"""
 
-__title__ = "Station"
+__title__ = "Ships"
 __author__ = "Scalable Module Group 15"
 __version__ = 1.0
 
@@ -9,16 +14,66 @@ import urllib
 import requests
 from time import sleep
 from typing import Dict
-from datetime import datetime
 from numpy.random import uniform
+from datetime import datetime
+import json
 
-class SuperEntity:
-    def __init__(self, id: str, port: str, address: str) -> None:
+
+class Ship:
+    """Ship Class
+    Args:
+        loc(tuple): x and y cordinate of the Ships
+        ship_id(str): the name of the ship
+    """
+    def __init__(self, ship_id: str, simulator_address: str, port: str) -> None:
         self.__loc = (0.0, 0.0)
         self._id = id
         self._simulator_port = port
-        self._simulator_address = address
+        self._simulator_address = simulator_address
+
+        self.__range = 0
+        self.__speed = 0
+        self.__itinerary = []
+        self.__COMMUNICATION_RANGE = [100, 1000]
+        self.__SPEED_RANGE = [100, 1000]
+        self._messages = []
+        self.network = None
+        pass
     
+    @property
+    def range(self):
+        """Getter fuction for the Communication range property
+
+        Returns:
+            int: Communication radius of the ships
+        """
+        return self.__range
+    
+    @range.setter
+    def range(self, inp: int):
+        if self.__COMMUNICATION_RANGE[0] < inp < self.__COMMUNICATION_RANGE[1]:
+            self.__range = inp
+        else:
+            raise ValueError(f'Input communication range of the ships is between {self.__COMMUNICATION_RANGE[0]} & {self.__COMMUNICATION_RANGE[1]}')
+    
+    @property
+    def speed(self):
+        return str(self.__speed)
+    
+    @speed.setter
+    def speed(self, inp: float):
+        if self.__SPEED_RANGE[0] < inp < self.__SPEED_RANGE[1]:
+            self.__speed = inp
+        else:
+            raise ValueError(f'Speed Range for the ships is between {self.__SPEED_RANGE[0]} & {self.__SPEED_RANGE[1]}')
+    
+    def update(self):
+        """[summary]
+        
+            update the speed, location, range
+        """
+        pass
+
     @property
     def loc(self):
         """Getter fuction for the location property
@@ -87,37 +142,11 @@ class SuperEntity:
             raise ValueError(f"Error from the controller: {request} from request: {url} and response: {request.content.decode('utf-8')}")
         return request
     
-    def connect(self):
-        pass
-    
-    def run(self):
-        print("connecting to the controller")
-        self.connect()
-        while True:
-            sleep(uniform(1.5, 2.5))
-            print("starting update")
-            self.update()
-
-    def update(self):
-        """
-        Get an update from the simulator
-        """
-        now = datetime.now().strftime('%H:%M:%S')
-        params = {
-            "time": now
-        }
-        res = self.make_request_to_controller("update", params)
-        try:
-            data = json.loads(res.content)
-        except Exception as e:
-            print(res.content)
-        else:
-            print(data.decode('utf-8'))
-        pass
-
     def generate_message(self):
         """
         Generate a new message
         """
-        ...
-    
+        pass
+
+if __name__ == "__main__":
+    pass

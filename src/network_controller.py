@@ -1,3 +1,9 @@
+"""
+    This is a management class for the network controlers, it holds a record 
+    of all the controllers and takes care of routing messages from ships 
+    to their appropriate controller and vis-versa.
+"""
+
 import requests
 import pandas as pd
 import numpy as np
@@ -6,12 +12,11 @@ import re
 from datetime import datetime
 import json
 
-from requests.sessions import session
-from Ship import ship
+from ship import ship
 from message import Message
 import requests
 
-class Controller(ship):
+class NetworkController(ship):
     def __init__(self, shipID:str, simulator_address: str, shipPort: str, host:str = "127.0.0.1", port: str = "3000", size:int = 100_000, messages: list = []) -> None:
         super().__init__(shipID, simulator_address, shipPort, messages)
         self.messages = pd.DataFrame(columns=['source_id', 'destination_id', 'message'])

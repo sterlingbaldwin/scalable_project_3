@@ -1,3 +1,8 @@
+"""
+    This class contains the generated text messges between 
+    ships, as well as command messages from network controllers
+    to ships in their networks.
+"""
 from enum import Enum
 from dataclasses import dataclass
 

@@ -1,3 +1,8 @@
+"""
+    This is depricated, I (sterling) have left it here for the time being
+    since I want to copy code from it.
+"""
+
 import os
 import paramiko
 import argparse
