@@ -1,3 +1,7 @@
+---
+
+---
+
 # scalable_project_3
 Space Mail!
 
@@ -73,6 +77,8 @@ The simulator is also responsible for triggering an update function. Each entity
 3. Create/Updated the ephimeral network basis the new ship positions and connections. This would also including merging of networks there is communication chain link created between the two.
 4. Create any new network controllers in case of a newly initiated network. Remove a controller of the smaller network in the event where two networks merge to create a single ephimeral network.
 
+<img src="./structure.png" style="zoom:50%;" />
+
 ## Message
 
 The message object is our atomic data unit and consists of the following:
@@ -112,6 +118,8 @@ Like the entity server this server is reponsible for handling all the network co
 The simulation of base reality. The simulator manages both the entity and the controller server. The simulator randomly injects new ships in the network and removes a few. The Simulator is also responsible for triggering the update operation that runs on all the ships to update their properties. The simulator will also be responsible for injecting new and random events in the system triggering actions by the controllers and effectivly the ships in the network.
 
 # API
+
+## Version 1
 
 ### remove_entity
 	ENDPOint: /remove_entity
@@ -219,11 +227,9 @@ The simulation of base reality. The simulator manages both the entity and the co
 
 
 
-# Version 2
+## Version 2
 
-# API Calls
-
-## Controller Server
+## --Controller Server
 
 ### add_controller
 
@@ -287,7 +293,7 @@ Return
 
 
 
-## Entity(Network) server
+## --Entity(Network) server
 
 ### add_ship
 
