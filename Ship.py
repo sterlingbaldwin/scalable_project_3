@@ -28,6 +28,7 @@ class ship(SuperEntity):
         self._messages = []
         self.network = None
         self.connect()
+        self._isController = False
         pass
 
     @property
@@ -77,5 +78,13 @@ class ship(SuperEntity):
         """
         pass
 
-if __name__ == "__main__":
-    pass
+    def make_controller(self):
+        self._isController = True
+        ShipDetails = {
+            'ship_id': self._id,
+            'speed': self.__speed,
+            'comRange': self.__range,
+            'loc': self.loc,
+            'network': self.network
+        }
+        
