@@ -88,8 +88,7 @@ class EntityManager(Server):
                 'ship_id': shipEntity.id,
                 'network': self.__max_network
             }
-            shipEntity.network = self.__max_network
-            shipEntity.make_controller(self.controller_endpoint)
+            shipEntity.create_network(self.controller_endpoint, self.__max_network, True)
             return
         
         loc = np.array(shipEntity.loc)
@@ -108,8 +107,8 @@ class EntityManager(Server):
                 'ship_id': shipEntity.id,
                 'network': self.__max_network
             }
-            shipEntity.network = self.__max_network
-            shipEntity.make_controller(self.controller_endpoint)
+            
+            shipEntity.create_network(self.controller_endpoint, self.__max_network, True)
             return
         
         # find the largers network and add the ship
@@ -118,7 +117,7 @@ class EntityManager(Server):
             'ship_id': shipEntity.id,
             'network': maxnetwork
         }
-        shipEntity.network = maxnetwork
+        shipEntity.create_network(self.controller_endpoint, maxnetwork, False)
         self._network_details.loc[self._network_details['network'].isin(networkList), 'network'] = maxnetwork
         for ship_id in list(self._network_details.loc[self._network_details['network'].isin(networkList), 'ship_id']):
             self._element_details[ship_id].network = maxnetwork

@@ -38,7 +38,7 @@ class Ship:
         self.__COMMUNICATION_RANGE = [100, 1000]
         self.__SPEED_RANGE = [100, 1000]
         self._messages = []
-        self.network = None
+        self._network = None
         self._is_controller = False
         pass
     
@@ -160,18 +160,37 @@ class Ship:
             bool: If successfully updated the ship as a controller
         """
         data = {
-            'id': self.id,
-            'messages':self._messages
+            'id': self.id
+            ,'messages':self._messages
             ,'itinerary':self.__itinerary
             ,'loc':self.__loc
             ,'simulator_port':self._simulator_port
             ,'simulator_address':self._simulator_address
             ,'range':self.__range
             ,'speed':self.__speed
+            ,'network': self._network
         }
         req = requests.post(url = API_ENDPOINT, json = data)
         if req.status_code == 200:
             self._is_controller = True
+            return True
+        return False
+    
+    def create_network(self, API_ENDPOINT:str, network:str, is_controller:bool) -> bool:
+        """Added a network to the ship and updating the controller also
+
+        Args:
+            API_ENDPOINT (str): API endpoint for the controller server
+            network (str): Network id to be added
+
+        Returns:
+            bool: Request Completed
+        """
+        self._network = network
+        if is_controller:
+            return self.make_controller(API_ENDPOINT)
+        req = requests.post(url=API_ENDPOINT, json={'shipid':self.id, 'network': network})
+        if req.status_code == 200:
             return True
         return False
         
