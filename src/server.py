@@ -4,6 +4,7 @@
     and exposes the method to add endpoints
 """
 import re
+import os
 import json
 from typing import Callable
 import numpy as np
@@ -38,14 +39,13 @@ class Server:
             handler=self.shutdown)
     
     def start(self):
-        print("Starting subprocess in non-blocking mode")
+        print(f"Starting server from process: {os.getpid()}")
         self._proc = Process(
             target=self._app.run,
             kwargs={
                 "host": self._address,
                 "port": self._port})
         self._proc.start()
-        print("process should be running")
     
     def start_blocking(self):
         self.start()
