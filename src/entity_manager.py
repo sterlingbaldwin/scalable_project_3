@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 from server import Server
 from ship import ship
+import requests
 
 class EntityManager(Server):
     def __init__(self, *args, **kwargs) -> None:
@@ -26,6 +27,7 @@ class EntityManager(Server):
             endpoint='/remove_ship',
             name='remove_ship',
             handler=self.remove_ship)
+        self.controller_endpoint = ''
     
     def add_ship(self, request: Request):
         """
@@ -87,6 +89,7 @@ class EntityManager(Server):
                 'network': self.__max_network
             }
             shipEntity.network = self.__max_network
+            shipEntity.make_controller(self.controller_endpoint)
             return
         
         loc = np.array(shipEntity.loc)
@@ -106,6 +109,7 @@ class EntityManager(Server):
                 'network': self.__max_network
             }
             shipEntity.network = self.__max_network
+            shipEntity.make_controller(self.controller_endpoint)
             return
         
         # find the largers network and add the ship
@@ -118,6 +122,7 @@ class EntityManager(Server):
         self._network_details.loc[self._network_details['network'].isin(networkList), 'network'] = maxnetwork
         for ship_id in list(self._network_details.loc[self._network_details['network'].isin(networkList), 'ship_id']):
             self._element_details[ship_id].network = maxnetwork
+        requests.post(url = self.controller_endpoint, json = {'actualNetwork': maxnetwork, 'mergedNetwork': networkList})
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

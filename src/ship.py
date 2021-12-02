@@ -17,6 +17,7 @@ from typing import Dict
 from numpy.random import uniform
 from datetime import datetime
 import json
+from flask import Flask
 
 
 class Ship:
@@ -38,6 +39,7 @@ class Ship:
         self.__SPEED_RANGE = [100, 1000]
         self._messages = []
         self.network = None
+        self._is_controller = False
         pass
     
     @property
@@ -147,6 +149,32 @@ class Ship:
         Generate a new message
         """
         pass
+
+    def make_controller(self, API_ENDPOINT:str) -> bool:
+        """Make a request to the controller server to update the ship entity as a network controller
+
+        Args:
+            API_ENDPOINT (str): API endpoint for the controller server
+
+        Returns:
+            bool: If successfully updated the ship as a controller
+        """
+        data = {
+            'id': self.id,
+            'messages':self._messages
+            ,'itinerary':self.__itinerary
+            ,'loc':self.__loc
+            ,'simulator_port':self._simulator_port
+            ,'simulator_address':self._simulator_address
+            ,'range':self.__range
+            ,'speed':self.__speed
+        }
+        req = requests.post(url = API_ENDPOINT, json = data)
+        if req.status_code == 200:
+            self._is_controller = True
+            return True
+        return False
+        
 
 if __name__ == "__main__":
     pass
