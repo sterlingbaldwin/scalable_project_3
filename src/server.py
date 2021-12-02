@@ -57,6 +57,7 @@ class Server:
         while True:
             sys.stdout.flush()
             sleep(1)
+            print(self._proc)
     
     def shutdown(self, request=None):
         """
