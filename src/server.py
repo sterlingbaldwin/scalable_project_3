@@ -69,6 +69,7 @@ class Server:
         try:
             print("Got a shutdown request")
             secret = request.form.get("secret")
+            print(f"request secret = {secret}, my secret = {self._secret}")
             if secret == self._secret or self._secret == None: 
                 self._proc.terminate()
                 self._proc.join()
