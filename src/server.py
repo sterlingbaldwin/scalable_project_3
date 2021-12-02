@@ -10,7 +10,6 @@ import json
 from typing import Callable
 import numpy as np
 from time import sleep
-import psutil
 from flask.wrappers import Request
 from multiprocessing import Process
 from flask import Flask, request, Response
