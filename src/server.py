@@ -43,7 +43,7 @@ class Server:
             handler=self.shutdown)
     
     def start(self):
-        print(f"Starting server from process: {os.getpid()}")
+        print(f"Starting server from process: {os.getpid()} with secret {self._secret}")
         self._proc = Process(
             target=self._app.run,
             daemon=True,
