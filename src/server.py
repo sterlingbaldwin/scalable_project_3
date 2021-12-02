@@ -37,10 +37,14 @@ class Server:
             handler=self.shutdown)
     
     def start(self):
+        print("Starting subprocess")
         self._proc = Process(
             target=self._app.run,
-            args=(self._address, self._port))
+            kwargs={
+                "host": self._address,
+                "port": self._port})
         self._proc.start()
+        print("process should be running")
     
     def shutdown(self, request):
         """
