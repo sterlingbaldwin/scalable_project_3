@@ -67,9 +67,9 @@ class Server:
             Response with status 200 on success, 400 otherwise
         """
         try:
-            print("Got a shutdown request")
+            print("Got a shutdown request", flush=True)
             secret = request.form.get("secret")
-            print(f"request secret = {secret}, my secret = {self._secret}")
+            print(f"request secret = {secret}, my secret = {self._secret}", flush=True)
             if secret == self._secret or self._secret == None: 
                 self._proc.terminate()
                 self._proc.join()
