@@ -58,7 +58,7 @@ class Server:
             sys.stdout.flush()
             sleep(1)
     
-    def shutdown(self, request):
+    def shutdown(self, request=None):
         """
         Shut down the server
         Parameters:
