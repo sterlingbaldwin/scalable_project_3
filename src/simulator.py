@@ -76,7 +76,7 @@ class Simulator(Server):
         manager_address = choice(PI_ADDRESSES["controllers"])
         logdir = "./logs"
         
-        cmd = f'cd {PROJECT_PATH}; {SRC_VENV};  python controller_manager.py 0.0.0.0 {self._port} {self._controller_managers[manager_address]} > {Path(logdir).absolute()}/controller_manager.out 2>&1; echo Running on process: $?'
+        cmd = f'cd {PROJECT_PATH}; source {VENV_PATH};  python controller_manager.py 0.0.0.0 {self._port} {self._controller_managers[manager_address]} > ./logs/controller_manager.out 2>&1; echo Running on process: $?'
 
         new_client = paramiko.SSHClient()
         new_client.load_system_host_keys()
