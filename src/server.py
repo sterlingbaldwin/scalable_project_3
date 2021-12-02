@@ -74,7 +74,7 @@ class Server:
             secret = request.args.get('secret')
             print(f"request secret = {secret}, my secret = {self._secret}", flush=True)
             if secret == self._secret or self._secret == None: 
-                print("secrets match, exiting")
+                print("secrets match, exiting", flush=True)
                 # self._proc.terminate()
                 # self._proc.join()
                 sys.exit(0)
