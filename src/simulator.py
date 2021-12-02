@@ -11,8 +11,8 @@ from flask.wrappers import Request, Response
 
 SSH_KEY = f"{os.environ['HOME']}/.ssh/id_rsa.pub"
 USER = os.environ['USER']
-PROJECT_PATH = f"source /users/pgrad/{USER}/projects/scalable_project_3/"
-SRC_VENV = f"source .venv/bin/activate"
+PROJECT_PATH = f"/users/pgrad/{USER}/projects/scalable_project_3/"
+VENV_PATH = f".venv/bin/activate"
 PI_ADDRESSES = {
     "controllers": ["10.35.70.29"], 
     "entities": ["10.35.70.30"]
@@ -59,9 +59,8 @@ class Simulator(Server):
     def setup_entity_manager(self):
         # pick one of the addresses reserved for the entity manager
         manager_address = choice(PI_ADDRESSES["entities"])
-        logdir = "./logs"
         
-        cmd = f'cd {PROJECT_PATH}; {SRC_VENV};  python entity_manager.py 0.0.0.0 {self._port} {self._entity_managers[manager_address]} > {Path(logdir).absolute()}/entity_manager.out 2>&1; echo Running on process: $?'
+        cmd = f'cd {PROJECT_PATH}; source {VENV_PATH};  python entity_manager.py 0.0.0.0 {self._port} {self._entity_managers[manager_address]} > ./logs/entity_manager.out 2>&1; echo Running on process: $?'
 
         new_client = paramiko.SSHClient()
         new_client.load_system_host_keys()
