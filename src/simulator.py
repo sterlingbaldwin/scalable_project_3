@@ -49,7 +49,7 @@ class Simulator(Server):
         if not request.status_code == 200:
             print(f"Got an error response to request: {url}; {request.content}")
 
-    def shuwdown_services(self):
+    def shutdown_services(self):
         managers = dict(self._entity_managers, **self._controller_managers)
         for ip, secret in managers.items():
             print(f"shutting down {ip}")
@@ -61,7 +61,7 @@ class Simulator(Server):
         manager_address = choice(PI_ADDRESSES["entities"])
         logdir = "./logs"
         
-        cmd = f'cd {PROJECT_PATH}; {SRC_VENV};  python entity_manager.py 0.0.0.0 {self._port} {self._entity_manager_secrets[manager_address]} > {Path(logdir).absolute()}/entity_manager.out 2>&1; echo Running on process: $?'
+        cmd = f'cd {PROJECT_PATH}; {SRC_VENV};  python entity_manager.py 0.0.0.0 {self._port} {self._entity_managers[manager_address]} > {Path(logdir).absolute()}/entity_manager.out 2>&1; echo Running on process: $?'
 
         new_client = paramiko.SSHClient()
         new_client.load_system_host_keys()
@@ -77,7 +77,7 @@ class Simulator(Server):
         manager_address = choice(PI_ADDRESSES["controllers"])
         logdir = "./logs"
         
-        cmd = f'cd {PROJECT_PATH}; {SRC_VENV};  python controller_manager.py 0.0.0.0 {self._port} {self._controller_manager_secrets[manager_address]} > {Path(logdir).absolute()}/controller_manager.out 2>&1; echo Running on process: $?'
+        cmd = f'cd {PROJECT_PATH}; {SRC_VENV};  python controller_manager.py 0.0.0.0 {self._port} {self._controller_managers[manager_address]} > {Path(logdir).absolute()}/controller_manager.out 2>&1; echo Running on process: $?'
 
         new_client = paramiko.SSHClient()
         new_client.load_system_host_keys()
