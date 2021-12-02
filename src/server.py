@@ -50,7 +50,6 @@ class Server:
             kwargs={
                 "host": self._address,
                 "port": self._port})
-        print(str(self._proc))
         self._proc.start()
     
     def start_blocking(self):
@@ -73,9 +72,10 @@ class Server:
             secret = request.args.get('secret')
             print(f"request secret = {secret}, my secret = {self._secret}", flush=True)
             if secret == self._secret or self._secret == None: 
-                self._proc.terminate()
-                self._proc.join()
-                res = Response(response=f"Shutting down", status=200)
+                # self._proc.terminate()
+                # self._proc.join()
+                sys.exit(0)
+                # res = Response(response=f"Shutting down", status=200)
             else:
                 res = Response(response=f"Not shutting down for you!", status=400)
         except Exception as e:
