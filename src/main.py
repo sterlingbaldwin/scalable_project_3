@@ -27,7 +27,7 @@ def main():
         help=f"The IP address to bind to, by default is set to {config['hostIP']}. If you want anyone else to see the server run with 0.0.0.0")
     parser.add_argument(
         "--port",
-        type=str,
+        type=int,
         default=config['port'],
         help=f"The port the simulator should run on, default is {config['port']}")
     parser.add_argument(
