@@ -12,7 +12,7 @@ import pandas as pd
 
 class ControllerManager(Server):
     def __init__(self, *args, **kwargs) -> None:
-        super(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._controller_list = []
         self._network_details = pd.DataFrame(columns=['network', 'controller_id'])
 
