@@ -8,11 +8,13 @@ from flask import Response
 from flask.wrappers import Request
 from server import Server
 from network_controller import NetworkController
+import pandas as pd
 
 class ControllerManager(Server):
     def __init__(self, *args, **kwargs) -> None:
         super(*args, **kwargs)
         self._controller_list = []
+        self._network_details = pd.DataFrame(columns=['network', 'controller_id'])
 
     def __call__(self) -> None:
         super().__call__()
@@ -44,6 +46,10 @@ class ControllerManager(Server):
                 request.form.get('ship_port')
             )
             self._controller_list.append(controller)
+            self._network_details.loc[self._network_details.shape[0]] = {
+                'network': request.form.get('network'),
+                'controller_id': request.form.get('ship_id')
+            }
             res = Response(response=f"Added new network_controller: {controller.id}", status=200)
         except Exception as e:
             res = Response(response=f"Error handling add_controller request: {repr(e)}", status=400)
@@ -61,6 +67,7 @@ class ControllerManager(Server):
         try:
             ship_id = request.form.get('controller_id')
             self._controller_list=[element for element in self._controller_list if element.id != ship_id]
+            self._network_details.drop(self._network_details[self._network_details['network'].isin(request.form.get('network'))].index, inplace=True)
             res = Response(response=f"Removed network_controller: {ship_id}", status=200)
         except Exception as e:
             res = Response(response=f"Error handling remove_controller request: {repr(e)}", status=400)
