@@ -7,6 +7,7 @@ import re
 import json
 from typing import Callable
 import numpy as np
+from time import sleep
 from flask.wrappers import Request
 from multiprocessing import Process
 from flask import Flask, request, Response
@@ -37,7 +38,7 @@ class Server:
             handler=self.shutdown)
     
     def start(self):
-        print("Starting subprocess")
+        print("Starting subprocess in non-blocking mode")
         self._proc = Process(
             target=self._app.run,
             kwargs={
@@ -45,6 +46,11 @@ class Server:
                 "port": self._port})
         self._proc.start()
         print("process should be running")
+    
+    def start_blocking(self):
+        self.start()
+        while True:
+            sleep(1)
     
     def shutdown(self, request):
         """

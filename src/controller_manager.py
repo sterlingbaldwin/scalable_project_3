@@ -15,18 +15,13 @@ class ControllerManager(Server):
         super().__init__(*args, **kwargs)
         self._controller_list = []
         self._network_details = pd.DataFrame(columns=['network', 'controller_id'])
-
-    def __call__(self) -> None:
-        super().__call__()
         self.add_endpoint(
             endpoint='/add_controller', 
             name='add_controller',
             handler=self.add_controller)
         self.add_endpoint(
             endpoint='/remove_controller',
-            name='remove_controller',
-            handler=self.remove_controller)
-        self._app.run(self._address, self._port)
+            name='remove_controller')
 
     def add_controller(self, request: Request):
         """
@@ -86,9 +81,9 @@ if __name__ == "__main__":
         "--secret",
         type=str)
     args = parser.parse_args()
-    em = ControllerManager(
+    cm = ControllerManager(
         address=args.host,
         port=args.port,
         secret=args.secret)
-    em.start()
+    cm.start_blocking()
     sys.exit(0)
