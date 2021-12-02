@@ -24,8 +24,16 @@ class Simulator(Server):
         super(Simulator, self).__init__(*args, **kwargs)
         self._num_ships = kwargs.get('num_ships')
         self._world_size = kwargs.get('world_size')
-        self._entity_managers = {ip: uuid4().hex for ip in PI_ADDRESSES["entities"]}
-        self._controller_managers = {ip: uuid4().hex for ip in PI_ADDRESSES["controllers"]}
+        self._entity_managers = {
+            ip: {
+                'secret': uuid4().hex,
+                'port': 0 
+            } for ip in PI_ADDRESSES["entities"]}
+        self._controller_managers = {
+            ip: {
+                'secret': uuid4().hex,
+                'port': 0 
+            } for ip in PI_ADDRESSES["entities"]}
         self.add_endpoint(
             endpoint='/global_event',
             name='global_event',
@@ -59,16 +67,17 @@ class Simulator(Server):
 
     def shutdown_services(self):
         managers = dict(self._entity_managers, **self._controller_managers)
-        for ip, secret in managers.items():
+        for ip, info in managers.items():
             print(f"shutting down {ip}")
-            url = f"http://{ip}/shutdown"
-            self.send_request(url, {'secret': secret})
+            url = f"http://{ip}:{info['port']}/shutdown"
+            self.send_request(url, {'secret': info['secret']})
 
     def setup_entity_manager(self):
         # pick one of the addresses reserved for the entity manager
         manager_address = choice(PI_ADDRESSES["entities"])
-        
-        cmd = f'cd {PROJECT_PATH}; source {VENV_PATH}; cd src; python entity_manager.py --host 0.0.0.0 --port {self._port + 1} --secret {self._entity_managers[manager_address]} > ../logs/entity_manager.out 2>&1;'
+        manager_info = self._entity_managers[manager_address]
+        manager_info['port'] = self._port + 1
+        cmd = f'cd {PROJECT_PATH}; source {VENV_PATH}; cd src; python entity_manager.py --host 0.0.0.0 --port {manager_info["port"]} --secret {manager_info["secret"]} > ../logs/entity_manager.out 2>&1;'
 
         new_client = paramiko.SSHClient()
         new_client.load_system_host_keys()
@@ -82,8 +91,9 @@ class Simulator(Server):
     def setup_controller_manager(self):
         # pick one of the addresses reserved for the entity manager
         manager_address = choice(PI_ADDRESSES["controllers"])
-        
-        cmd = f'cd {PROJECT_PATH}; source {VENV_PATH}; cd src; python controller_manager.py --host 0.0.0.0 --port {self._port + 2} --secret {self._controller_managers[manager_address]} > ../logs/controller_manager.out 2>&1;'
+        manager_info = self._controller_managers[manager_address]
+        manager_info['port'] = self._port + 1
+        cmd = f'cd {PROJECT_PATH}; source {VENV_PATH}; cd src; python controller_manager.py --host 0.0.0.0 --port {manager_info["port"]} --secret {manager_info["secret"]} > ../logs/entity_manager.out 2>&1;'
 
         new_client = paramiko.SSHClient()
         new_client.load_system_host_keys()
