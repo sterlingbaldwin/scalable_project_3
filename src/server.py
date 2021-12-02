@@ -4,6 +4,7 @@
     and exposes the method to add endpoints
 """
 import re
+import sys
 import os
 import json
 from typing import Callable
@@ -50,6 +51,7 @@ class Server:
     def start_blocking(self):
         self.start()
         while True:
+            sys.stdout.flush()
             sleep(1)
     
     def shutdown(self, request):

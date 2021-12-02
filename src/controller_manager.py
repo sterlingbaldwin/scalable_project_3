@@ -21,7 +21,8 @@ class ControllerManager(Server):
             handler=self.add_controller)
         self.add_endpoint(
             endpoint='/remove_controller',
-            name='remove_controller')
+            name='remove_controller',
+            handler=self.remove_controller)
 
     def add_controller(self, request: Request):
         """
