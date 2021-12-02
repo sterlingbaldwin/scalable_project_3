@@ -57,7 +57,8 @@ class Server:
         while True:
             sys.stdout.flush()
             sleep(1)
-            if psutil.pid_exists(self._proc.pid):
+            if not self._proc.is_alive():
+            # if psutil.pid_exists(self._proc.pid):
                 print("child is not alive, exiting", flush=True)
                 sys.exit(0)
     
