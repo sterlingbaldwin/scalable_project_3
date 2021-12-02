@@ -29,9 +29,9 @@ class Simulator(Server):
             endpoint='/global_event',
             name='global_event',
             handler=self.global_event)
-        self._app.run()
     
     def __call__(self):
+        self.start()
         self.setup_entity_manager()
         self.setup_controller_manager()
         for _ in range(self._num_ships):
