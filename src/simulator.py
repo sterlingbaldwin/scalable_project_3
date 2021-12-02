@@ -50,10 +50,11 @@ class Simulator(Server):
         session = requests.Session()
         session.trust_env = False
         if params is not None:
-            url += f"?{urllib.parse.urlencode(params)}"  
-        request = session.prepare_request(requests.Request("GET", url))
-        if not request.status_code == 200:
-            print(f"Got an error response to request: {url}; {request.content}")
+            url += f"?{urllib.parse.urlencode(params)}" 
+        
+        res = session.send(session.prepare_request(requests.Request("GET", url)))
+        if not res.status_code == 200:
+            print(f"Got an error response to request: {url}; {res.content}")
 
     def shutdown_services(self):
         managers = dict(self._entity_managers, **self._controller_managers)
