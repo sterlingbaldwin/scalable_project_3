@@ -21,6 +21,7 @@ class EndpointAction:
         self.response = None
 
     def __call__(self, *args):
+        print(f"got a request: {request}")
         self.response = self.action(request)
         return self.response
 
@@ -79,7 +80,7 @@ class Server:
         return res
     
     def add_endpoint(self, endpoint: str, name: str, handler: Callable) -> None:
-        self._app.add_url_rule(endpoint, name, EndpointAction(handler), methods=['GET', "POST"])
+        self._app.add_url_rule(endpoint, name, EndpointAction(handler), methods=["GET", "POST"])
 
     def ping(self, request: Request):
         """
