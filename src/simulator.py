@@ -1,6 +1,7 @@
 import os
 import paramiko
 import requests
+import json
 from random import choice
 from server import Server
 from uuid import uuid4
@@ -54,14 +55,17 @@ class Simulator(Server):
     def generate_ship(self):
         pass
 
-    def send_request(self, url, params=None):
+    def send_request(self, url, method="GET", params=None):
         session = requests.Session()
         session.trust_env = False
-        if params is not None:
-            url += f"?{urllib.parse.urlencode(params)}" 
+        if method == "GET" and params is not None:
+            url += f"?{urllib.parse.urlencode(params)}"
+            req = requests.Request(method, url)
+        elif method == "POST" and params is not None:
+            req = requests.Request(method, url, data=json.dumps(params))
         
         print(f"Sending GET request to url: {url}")
-        res = session.send(session.prepare_request(requests.Request("GET", url)))
+        res = session.send(session.prepare_request())
         if not res.status_code == 200:
             print(f"Got an error response to request: {url}; {res.content}")
 
@@ -70,7 +74,7 @@ class Simulator(Server):
         for ip, info in managers.items():
             print(f"shutting down {ip}")
             url = f"http://{ip}:{info['port']}/shutdown"
-            self.send_request(url, {'secret': info['secret']})
+            self.send_request(url, "POST", {'secret': info['secret']})
 
     def setup_entity_manager(self):
         # pick one of the addresses reserved for the entity manager

@@ -68,7 +68,7 @@ class Server:
         """
         try:
             print("Got a shutdown request", flush=True)
-            secret = request.form.get("secret")
+            secret = json.loads(request.form.get("secret"))
             print(f"request secret = {secret}, my secret = {self._secret}", flush=True)
             if secret == self._secret or self._secret == None: 
                 self._proc.terminate()
