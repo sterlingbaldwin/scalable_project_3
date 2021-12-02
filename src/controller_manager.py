@@ -77,11 +77,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Run the ControllerManager")
     parser.add_argument(
-        '--address',
-        type=int)
-    parser.add_argument(
-        "--host",
+        '--host',
         type=str)
+    parser.add_argument(
+        "--port",
+        type=int)
     parser.add_argument(
         "--secret",
         type=str)

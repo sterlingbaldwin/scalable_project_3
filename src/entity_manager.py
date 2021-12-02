@@ -128,10 +128,10 @@ if __name__ == "__main__":
         description="Run the EntityManager")
     parser.add_argument(
         '--host',
-        type=int)
+        type=str)
     parser.add_argument(
         "--port",
-        type=str)
+        type=int)
     parser.add_argument(
         "--secret",
         type=str)
