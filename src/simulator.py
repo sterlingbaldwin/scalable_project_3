@@ -65,7 +65,7 @@ class Simulator(Server):
             req = requests.Request(method, url, data=json.dumps(params))
         
         print(f"Sending GET request to url: {url}")
-        res = session.send(session.prepare_request())
+        res = session.send(session.prepare_request(req))
         if not res.status_code == 200:
             print(f"Got an error response to request: {url}; {res.content}")
 
