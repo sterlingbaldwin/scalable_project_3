@@ -52,6 +52,7 @@ class Simulator(Server):
         if params is not None:
             url += f"?{urllib.parse.urlencode(params)}" 
         
+        print(f"Sending GET request to url: {url}")
         res = session.send(session.prepare_request(requests.Request("GET", url)))
         if not res.status_code == 200:
             print(f"Got an error response to request: {url}; {res.content}")

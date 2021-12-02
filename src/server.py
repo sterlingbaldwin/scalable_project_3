@@ -66,11 +66,12 @@ class Server:
             Response with status 200 on success, 400 otherwise
         """
         try:
+            print("Got a shutdown request")
             secret = request.form.get("secret")
             if secret == self._secret or self._secret == None: 
                 self._proc.terminate()
                 self._proc.join()
-                res = Response(response=f"Shutting down EntityManager", status=200)
+                res = Response(response=f"Shutting down", status=200)
             else:
                 res = Response(response=f"Not shutting down for you!", status=400)
         except Exception as e:
