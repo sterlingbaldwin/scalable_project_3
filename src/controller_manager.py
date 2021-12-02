@@ -82,9 +82,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--host",
         type=str)
+    parser.add_argument(
+        "--secret",
+        type=str)
     args = parser.parse_args()
     em = ControllerManager(
         address=args.address,
-        port=args.port)
+        port=args.port,
+        secret=args.secret)
     em.start()
     sys.exit(0)
