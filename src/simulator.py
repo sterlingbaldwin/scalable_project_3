@@ -58,11 +58,16 @@ class Simulator(Server):
     def send_request(self, url, method="GET", params=None):
         session = requests.Session()
         session.trust_env = False
-        if method == "GET" and params is not None:
-            url += f"?{urllib.parse.urlencode(params)}"
+        if method == "GET": 
+            if params is not None:
+                url += f"?{urllib.parse.urlencode(params)}"
             req = requests.Request(method, url)
-        elif method == "POST" and params is not None:
-            req = requests.Request(method, url, data=json.dumps(params))
+        elif method == "POST":
+            if params is not None:
+                data = json.dumps(params)
+            else:
+                data = {}
+            req = requests.Request(method, url, data=data)
         
         print(f"Sending GET request to url: {url}")
         res = session.send(session.prepare_request(req))
@@ -74,7 +79,7 @@ class Simulator(Server):
         for ip, info in managers.items():
             print(f"shutting down {ip}")
             url = f"http://{ip}:{info['port']}/shutdown"
-            self.send_request(url, "POST", {'secret': info['secret']})
+            self.send_request(url, "GET", {'secret': info['secret']})
 
     def setup_entity_manager(self):
         # pick one of the addresses reserved for the entity manager
