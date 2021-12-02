@@ -5,6 +5,7 @@ from random import choice
 from server import Server
 from uuid import uuid4
 from pathlib import Path
+from time import sleep
 import urllib
 from flask.wrappers import Request, Response
 
@@ -36,6 +37,11 @@ class Simulator(Server):
         self.setup_controller_manager()
         for _ in range(self._num_ships):
             self.generate_ship()
+        self.update_cycle()
+
+    def update_cycle(self):
+        while True:
+            sleep(1)
 
     def generate_ship(self):
         pass
