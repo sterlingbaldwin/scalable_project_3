@@ -5,6 +5,7 @@
 
 from flask import Flask, request, Response
 from flask.wrappers import Request
+from typing import Callable
 import numpy as np
 import re
 import json
@@ -30,7 +31,7 @@ class Server:
             name='ping',
             handler=self.ping)
     
-    def add_endpoint(self, endpoint: str, name: str, handler: function) -> None:
+    def add_endpoint(self, endpoint: str, name: str, handler: Callable) -> None:
         self._app.add_url_rule(endpoint, name, EndpointAction(handler), methods=['GET', "POST"])
 
     def ping(self, request: Request):
