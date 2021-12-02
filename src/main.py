@@ -10,6 +10,7 @@ from simulator import Simulator
 
 config = configparser.ConfigParser()
 config.read('../Environment.ini')
+config = config['config']
 
 def main():
     parser = argparse.ArgumentParser(

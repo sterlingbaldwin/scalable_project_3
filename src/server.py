@@ -1,13 +1,15 @@
+
 """
     This is the parent class for all the servers. It sets up the flask app
     and exposes the method to add endpoints
 """
-
-from flask import Flask, request, Response
-from flask.wrappers import Request
-import numpy as np
 import re
 import json
+from typing import Callable
+import numpy as np
+from flask.wrappers import Request
+from multiprocessing import Process
+from flask import Flask, request, Response
 
 class EndpointAction:
     def __init__(self, action):
@@ -19,18 +21,48 @@ class EndpointAction:
         return self.response
 
 class Server:
-    def __init__(self) -> None:
+    def __init__(self, address:str = "127.0.0.1", port:str = 33001, secret:str = None, *args, **kwargs) -> None:
+        self._address = address
+        self._port = port
         self._app = None
-        pass
-
-    def __call__(self) -> None:
+        self._secret = secret
         self._app = Flask(__name__)
         self.add_endpoint(
             endpoint='/ping',
             name='ping',
             handler=self.ping)
+        self.add_endpoint(
+            endpoint='/shutdown',
+            name='shutdown',
+            handler=self.shutdown)
     
-    def add_endpoint(self, endpoint: str, name: str, handler: function) -> None:
+    def start(self):
+        self._proc = Process(
+            target=self._app.run,
+            args=(self._address, self._port))
+        self._proc.start()
+    
+    def shutdown(self, request):
+        """
+        Shut down the server
+        Parameters:
+            secret: a string, it should match the value given at startup
+        Returns:
+            Response with status 200 on success, 400 otherwise
+        """
+        try:
+            secret = request.form.get("secret")
+            if secret == self._secret or self._secret == None: 
+                self._proc.terminate()
+                self._proc.join()
+                res = Response(response=f"Shutting down EntityManager", status=200)
+            else:
+                res = Response(response=f"Not shutting down for you!", status=400)
+        except Exception as e:
+            res = Response(response=f"Unable to shutdown: {repr(e)}", status=400)
+        return res
+    
+    def add_endpoint(self, endpoint: str, name: str, handler: Callable) -> None:
         self._app.add_url_rule(endpoint, name, EndpointAction(handler), methods=['GET', "POST"])
 
     def ping(self, request: Request):
