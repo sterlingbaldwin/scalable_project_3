@@ -33,8 +33,7 @@ class Simulator(Server):
             ip: {
                 'secret': uuid4().hex,
                 'port': 0 
-            } for ip in PI_ADDRESSES["entities"]}
-        import ipdb; ipdb.set_trace()
+            } for ip in PI_ADDRESSES["controllers"]}
         self.add_endpoint(
             endpoint='/global_event',
             name='global_event',
