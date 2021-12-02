@@ -12,11 +12,11 @@ import re
 from datetime import datetime
 import json
 
-from ship import ship
+from ship import Ship
 from message import Message
 import requests
 
-class NetworkController(ship):
+class NetworkController(Ship):
     def __init__(self, shipID:str, simulator_address: str, shipPort: str, host:str = "127.0.0.1", port: str = "3000", size:int = 100_000, messages: list = []) -> None:
         super().__init__(shipID, simulator_address, shipPort, messages)
         self.messages = pd.DataFrame(columns=['source_id', 'destination_id', 'message'])

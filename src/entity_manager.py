@@ -10,7 +10,7 @@ import argparse
 import numpy as np
 import pandas as pd
 from server import Server
-from ship import ship
+from ship import Ship
 import requests
 
 class EntityManager(Server):
@@ -41,7 +41,7 @@ class EntityManager(Server):
             Response with status 200 on success, 400 otherwise
         """
         try:
-            ship_element = ship(
+            ship_element = Ship(
                 request.form.get('ship_id'),
                 request.form.get('simulator_address'),
                 request.form.get('ship_port')
@@ -68,7 +68,7 @@ class EntityManager(Server):
             res = Response(response=f"Error handling remove_ship request: {repr(e)}", status=400)
         return res
 
-    def add_to_network(self, shipEntity: ship):
+    def add_to_network(self, shipEntity: Ship):
         """
         Adds a ship to the networks dataframe. If no networks exist,
             a new network is created and the ship is added to it,

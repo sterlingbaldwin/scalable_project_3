@@ -1,5 +1,5 @@
 import unittest
-from ship import ship
+from ship import Ship
 import configparser
 import requests
 from uuid import uuid4
@@ -20,7 +20,7 @@ class TestControllerEndpoints(unittest.TestCase):
 
     def test_add_ship(self):
         _id = uuid4().hex
-        new_ship = ship(
+        new_ship = Ship(
             ship_id=_id,
             simulator_address=config['config']['hostIP'],
             port=config['config']['port'])
@@ -37,7 +37,7 @@ class TestControllerEndpoints(unittest.TestCase):
 
     def test_ping_in_range(self):
         _id_for_ship_2 = uuid4().hex
-        new_ship_2 = ship(
+        new_ship_2 = Ship(
             ship_id=_id_for_ship_2,
             simulator_address=config['config']['hostIP'],
             port=config['config']['port'])
@@ -47,7 +47,7 @@ class TestControllerEndpoints(unittest.TestCase):
         new_ship_2.connect()
 
         _id_for_ship_3 = uuid4().hex
-        new_ship_3 = ship(
+        new_ship_3 = Ship(
             ship_id=_id_for_ship_3,
             simulator_address=config['config']['hostIP'],
             port=config['config']['port'])
@@ -74,7 +74,7 @@ class TestControllerEndpoints(unittest.TestCase):
         config = configparser.ConfigParser()
         config.read('Environment.ini')
         _id_for_ship_2 = uuid4().hex
-        new_ship_2 = ship(
+        new_ship_2 = Ship(
             ship_id=_id_for_ship_2,
             simulator_address=config['config']['hostIP'],
             port=config['config']['port'])
@@ -84,7 +84,7 @@ class TestControllerEndpoints(unittest.TestCase):
         new_ship_2.connect()
 
         _id_for_ship_3 = uuid4().hex
-        new_ship_3 = ship(
+        new_ship_3 = Ship(
             ship_id=_id_for_ship_3,
             simulator_address=config['config']['hostIP'],
             port=config['config']['port'])
