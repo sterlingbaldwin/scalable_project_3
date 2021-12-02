@@ -8,7 +8,7 @@ from uuid import uuid4
 from pathlib import Path
 from time import sleep
 import urllib
-from http.client import RemoteDisconnected
+from requests.exceptions import ConnectionError
 from flask.wrappers import Request, Response
 
 
@@ -82,7 +82,7 @@ class Simulator(Server):
             url = f"http://{ip}:{info['port']}/shutdown"
             try:
                 self.send_request(url, "GET", {'secret': info['secret']})
-            except RemoteDisconnected:
+            except ConnectionError:
                 print("Client disconnected")
 
     def setup_entity_manager(self):
