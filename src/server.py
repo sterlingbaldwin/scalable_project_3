@@ -50,6 +50,7 @@ class Server:
             kwargs={
                 "host": self._address,
                 "port": self._port})
+        print(str(self._proc))
         self._proc.start()
     
     def start_blocking(self):
