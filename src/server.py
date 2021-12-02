@@ -77,6 +77,7 @@ class Server:
                 print("secrets match, exiting", flush=True)
                 # self._proc.terminate()
                 # self._proc.join()
+                sleep(1)
                 sys.exit(0)
                 # res = Response(response=f"Shutting down", status=200)
             else:
