@@ -137,7 +137,7 @@ if __name__ == "__main__":
         type=str)
     args = parser.parse_args()
     em = EntityManager(
-        address=args.address,
+        address=args.host,
         port=args.port,
         secret=args.secret)
     em.start()
