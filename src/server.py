@@ -19,12 +19,8 @@ class EndpointAction:
         self.response = self.action(request)
         return self.response
 
-class Server:
-    def __init__(self) -> None:
-        self._app = None
-        pass
-
-    def __call__(self) -> None:
+class Server(object):
+    def __init__(self, *args, **kwargs) -> None:
         self._app = Flask(__name__)
         self.add_endpoint(
             endpoint='/ping',

@@ -20,7 +20,7 @@ PI_ADDRESSES = {
 
 class Simulator(Server):
     def __init__(self, *args, **kwargs):
-        super().init(args, kwargs)
+        super(Simulator, self).__init__(*args, **kwargs)
         self._num_ships = kwargs.get('num_ships')
         self._world_size = kwargs.get('world_size')
         self._entity_managers = {ip: uuid4().hex for ip in PI_ADDRESSES["entities"]}
