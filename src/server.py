@@ -10,7 +10,7 @@ import json
 from typing import Callable
 import numpy as np
 from time import sleep
-# import psutil
+import psutil
 from flask.wrappers import Request
 from multiprocessing import Process
 from flask import Flask, request, Response
@@ -57,7 +57,8 @@ class Server:
         while True:
             sys.stdout.flush()
             sleep(1)
-            if self._proc.is_alive:
+            if psutil.getpid(self._proc.pid):
+                print("child is not alive, exiting", flush=True)
                 sys.exit(0)
     
     def shutdown(self, request=None):
