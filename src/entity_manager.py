@@ -140,5 +140,5 @@ if __name__ == "__main__":
         address=args.host,
         port=args.port,
         secret=args.secret)
-    em.start()
+    em.start_blocking()
     sys.exit(0)

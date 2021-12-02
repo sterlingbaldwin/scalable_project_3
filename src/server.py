@@ -10,6 +10,7 @@ import json
 from typing import Callable
 import numpy as np
 from time import sleep
+import signal
 from flask.wrappers import Request
 from multiprocessing import Process
 from flask import Flask, request, Response
@@ -28,6 +29,7 @@ class Server:
         self._address = address
         self._port = port
         self._app = None
+        self._proc = None
         self._secret = secret
         self._app = Flask(__name__)
         self.add_endpoint(
@@ -43,6 +45,7 @@ class Server:
         print(f"Starting server from process: {os.getpid()}")
         self._proc = Process(
             target=self._app.run,
+            daemon=True,
             kwargs={
                 "host": self._address,
                 "port": self._port})
