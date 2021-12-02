@@ -127,10 +127,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Run the EntityManager")
     parser.add_argument(
-        '--address',
+        '--host',
         type=int)
     parser.add_argument(
-        "--host",
+        "--port",
         type=str)
     parser.add_argument(
         "--secret",
