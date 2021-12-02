@@ -106,7 +106,7 @@ class Simulator(Server):
         manager_address = choice(PI_ADDRESSES["controllers"])
         manager_info = self._controller_managers[manager_address]
         manager_info['port'] = self._port + 1
-        cmd = f'cd {PROJECT_PATH}; source {VENV_PATH}; cd src; python controller_manager.py --host 0.0.0.0 --port {manager_info["port"]} --secret {manager_info["secret"]} > ../logs/entity_manager.out 2>&1;'
+        cmd = f'cd {PROJECT_PATH}; source {VENV_PATH}; cd src; python controller_manager.py --host 0.0.0.0 --port {manager_info["port"]} --secret {manager_info["secret"]} > ../logs/controller_manager.out 2>&1;'
 
         new_client = paramiko.SSHClient()
         new_client.load_system_host_keys()
