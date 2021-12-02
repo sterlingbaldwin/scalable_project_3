@@ -10,7 +10,7 @@ import json
 from typing import Callable
 import numpy as np
 from time import sleep
-import signal
+# import psutil
 from flask.wrappers import Request
 from multiprocessing import Process
 from flask import Flask, request, Response
@@ -57,7 +57,8 @@ class Server:
         while True:
             sys.stdout.flush()
             sleep(1)
-            print(self._proc)
+            if self._proc.is_alive:
+                sys.exit(0)
     
     def shutdown(self, request=None):
         """
@@ -73,6 +74,7 @@ class Server:
             secret = request.args.get('secret')
             print(f"request secret = {secret}, my secret = {self._secret}", flush=True)
             if secret == self._secret or self._secret == None: 
+                print("secrets match, exiting")
                 # self._proc.terminate()
                 # self._proc.join()
                 sys.exit(0)
