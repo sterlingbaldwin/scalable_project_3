@@ -60,7 +60,7 @@ class Simulator(Server):
         # pick one of the addresses reserved for the entity manager
         manager_address = choice(PI_ADDRESSES["entities"])
         
-        cmd = f'cd {PROJECT_PATH}; source {VENV_PATH}; cd src; python entity_manager.py --host 0.0.0.0 --port {self._port} --secret {self._entity_managers[manager_address]} > ../logs/entity_manager.out 2>&1;'
+        cmd = f'cd {PROJECT_PATH}; source {VENV_PATH}; cd src; python entity_manager.py --host 0.0.0.0 --port {self._port + 1} --secret {self._entity_managers[manager_address]} > ../logs/entity_manager.out 2>&1;'
 
         new_client = paramiko.SSHClient()
         new_client.load_system_host_keys()
@@ -75,7 +75,7 @@ class Simulator(Server):
         # pick one of the addresses reserved for the entity manager
         manager_address = choice(PI_ADDRESSES["controllers"])
         
-        cmd = f'cd {PROJECT_PATH}; source {VENV_PATH}; cd src; python controller_manager.py --host 0.0.0.0 --port {self._port} --secret {self._controller_managers[manager_address]} > ../logs/controller_manager.out 2>&1;'
+        cmd = f'cd {PROJECT_PATH}; source {VENV_PATH}; cd src; python controller_manager.py --host 0.0.0.0 --port {self._port + 2} --secret {self._controller_managers[manager_address]} > ../logs/controller_manager.out 2>&1;'
 
         new_client = paramiko.SSHClient()
         new_client.load_system_host_keys()

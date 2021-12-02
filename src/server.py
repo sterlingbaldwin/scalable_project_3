@@ -24,7 +24,7 @@ class EndpointAction:
         return self.response
 
 class Server:
-    def __init__(self, address:str = "127.0.0.1", port:str = 33001, secret:str = None, *args, **kwargs) -> None:
+    def __init__(self, address:str = "127.0.0.1", port:int = 33000, secret:str = None, *args, **kwargs) -> None:
         self._address = address
         self._port = port
         self._app = None
