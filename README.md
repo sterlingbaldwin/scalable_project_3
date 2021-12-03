@@ -77,7 +77,7 @@ The simulator is also responsible for triggering an update function. Each entity
 3. Create/Updated the ephimeral network basis the new ship positions and connections. This would also including merging of networks there is communication chain link created between the two.
 4. Create any new network controllers in case of a newly initiated network. Remove a controller of the smaller network in the event where two networks merge to create a single ephimeral network.
 
-<img src="./structure.png" style="zoom:50%;" />
+<img src="./doc/structure.png" style="zoom:50%;" />
 
 ## Message
 
