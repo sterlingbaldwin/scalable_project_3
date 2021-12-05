@@ -44,12 +44,11 @@ class Simulator(Server):
     
     def __call__(self):
         self.start()
-        import ipdb; ipdb.set_trace()
         if self._dont_setup:
             manager_info = self._entity_managers[PI_ADDRESSES["entities"][0]]
             manager_info['port'] = self._port + 1
             
-            manager_info = self._entity_managers[PI_ADDRESSES["controllers"][0]]
+            manager_info = self._controller_managers[PI_ADDRESSES["controllers"][0]]
             manager_info['port'] = self._port + 1
         else:
             self.setup_entity_manager()
