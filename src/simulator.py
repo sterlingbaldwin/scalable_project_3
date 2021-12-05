@@ -54,7 +54,13 @@ class Simulator(Server):
             sleep(1)
 
     def generate_ship(self):
-        pass
+        ship_data = {
+            "ship_id": uuid4().hex,
+            "simulator_address": self._address,
+            "ship_port": self._port }
+        ip = choice(PI_ADDRESSES["entities"])
+        url = f"http://{ip}:{self._entity_managers[ip]['port']}/add_ship"
+        self.send_request(url=url, method="POST", params=ship_data)
 
     def send_request(self, url, method="GET", params=None):
         session = requests.Session()
