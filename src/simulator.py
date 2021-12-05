@@ -17,7 +17,8 @@ USER = os.environ['USER']
 PROJECT_PATH = f"/users/pgrad/{USER}/projects/scalable_project_3/"
 VENV_PATH = f".venv/bin/activate"
 PI_ADDRESSES = {
-    "controllers": ["10.35.70.29"], 
+    # "controllers": ["10.35.70.29"], 
+    "controllers": ["10.35.70.30"], 
     "entities": ["10.35.70.30"]
 }
 
@@ -49,7 +50,7 @@ class Simulator(Server):
             manager_info['port'] = self._port + 1
             
             manager_info = self._controller_managers[PI_ADDRESSES["controllers"][0]]
-            manager_info['port'] = self._port + 1
+            manager_info['port'] = self._port + 2
         else:
             self.setup_entity_manager()
             self.setup_controller_manager()
