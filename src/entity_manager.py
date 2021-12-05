@@ -22,12 +22,14 @@ class EntityManager(Server):
         self.add_endpoint(
             endpoint='/add_ship',
             name='add_ship',
-            handler=self.add_ship)
+            handler=self.add_ship,
+            methods=["POST"])
         self.add_endpoint(
             endpoint='/remove_ship',
             name='remove_ship',
-            handler=self.remove_ship)
-        self.controller_endpoint = ''
+            handler=self.remove_ship,
+            methods=["POST"])
+        self.controller_endpoint = kwargs.get('controller_manager_address')
     
     def add_ship(self, request: Request):
         """
