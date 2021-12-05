@@ -53,6 +53,7 @@ class Simulator(Server):
         else:
             self.setup_entity_manager()
             self.setup_controller_manager()
+        sleep(3) # give flask some time to get up and running
         for _ in range(self._num_ships):
             self.generate_ship()
         self.update_cycle()
