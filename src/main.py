@@ -35,12 +35,17 @@ def main():
         type=int,
         default=config['num_ships'],
         help=f"The number of ships to spawn, default is {config['num_ships']}")
+    parser.add_argument(
+        "--dont-setup",
+        action="store_true",
+        help="Dont setup the entity_manager and controller_manager servers, useful when debugging. Assumes the servers have already been setup manually, on the port [PORT + 1]")
     args = parser.parse_args()
     sim = Simulator(
         size=args.size,
         num_ships=args.num_ships,
         host=args.host,
-        port=args.port)
+        port=args.port,
+        dont_setup=args.dont_setup)
     try:
         sim()
     except KeyboardInterrupt as e:

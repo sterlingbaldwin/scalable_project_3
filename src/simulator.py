@@ -26,6 +26,7 @@ class Simulator(Server):
         super(Simulator, self).__init__(*args, **kwargs)
         self._num_ships = kwargs.get('num_ships')
         self._world_size = kwargs.get('world_size')
+        self._dont_setup = kwargs.get('dont_setup')
         self._entity_managers = {
             ip: {
                 'secret': uuid4().hex,
@@ -43,8 +44,15 @@ class Simulator(Server):
     
     def __call__(self):
         self.start()
-        self.setup_entity_manager()
-        self.setup_controller_manager()
+        if self._dont_setup:
+            manager_info = self._entity_managers[PI_ADDRESSES["entities"][0]]
+            manager_info['port'] = self._port + 1
+            
+            manager_info = self._entity_managers[PI_ADDRESSES["controllers"][0]]
+            manager_info['port'] = self._port + 1
+        else:
+            self.setup_entity_manager()
+            self.setup_controller_manager()
         for _ in range(self._num_ships):
             self.generate_ship()
         self.update_cycle()
