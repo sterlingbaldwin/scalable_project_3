@@ -17,37 +17,20 @@ Space Mail!
 - StationaryStations.py: Contains the code for the Starting and end points stationay stations for the ships to traverse between. (Removed in version 2)
 
 ## Version 2
-- EntityServer.py: Server type that manages all the existing ship entities in the network. This server is also responsible for the management of the network creationa and network controller selection.
-- ControllerServer.py: Manages all the network controllers. It handles all incoming requests (including manually injected messages) and redirects the message to the coresponding controller.
-- GodServer.py: A server that handles the complete virtualization. It is responsible for initializing objects and handling the controller
+- entity_manager.py: Server type that manages all the existing ship entities in the network. This server is also responsible for the management of the network creation and network controller selection.
+- controller_manager.py: Manages all the network controllers. It handles all incoming requests (including manually injected messages) and redirects the message to the coresponding controller.
+- simulator.py: A server that handles the complete virtualization. It is responsible for initializing objects and handling the controller
 ## Running the thing
 
 There are two commands that need to be run (may be unified in the future), first you need to launch the simulator on an allowed port, and then you need to start the script which launches the entities (just stations for the moment).
 
 ### localhost
-In a local development environment open two terminals and in the first one run:
-(no need for --host or --port)
+The entire simulation can be started by moving to the src directory and running
+```
+	python main.py [-size SIZE] [--host HOST] [--port PORT] [--num-ships NUM_SHIPS]
+```
 
-	python main.py 
-
-To create a station and have it connect run:
-
-	python start_station.py localhost 5000 CAFEBABE
-
-### Raspberry Pi
-
-On the pi, you have to first get your ip address, then start with:
-
-	python main.py --host 0.0.0.0 --port 33000
-
-and in a second terminal, run:
-
-	python setup_stations.py --host <the ip address of the pi running the sim> --port 33000
-
-The ip addresses are (for the time being):
-
-	rasp-029: 10.35.70.29
-	rasp-030: 10.35.70.30
+This command will create a Simulator instance, which will ssh into the list of entity_manager and controller_manager IP addresses, and instantiate a manager on machine. The simulator will then use the API of the entity_manager to generate new ships. Once the correct number of ships have been created, it will begin making update calls to both managers.
 
 ## NOTE
 
@@ -63,10 +46,10 @@ The purpose of this project is to simulate sending email (space mail) between en
 
 	* Messages: These are the data objects which make their way from a source to their destination
 	* Ships: These entities are present in the space. Multiple ships form an ephimeral network with one of the network acting as the network controller.
-	* Network controller: It is the onldest node in the network which acts as the bridging node for all communication that happen withing the network.
-	* Entity Server: It is the server that controls all the ships present in space. It is also responsible for managing and updating the ephimeral networks.
-	* Controller Server: This server is responsible for handling the network controller ships. It redirects the messages to the corresponding network and manages the flow messages including the ones manually injected in the system.
-	* Physics Simulator: In the real world we would call this base reality, however since were not actually sending email to Neptune we’ve gotta simulate it somehow. The physics simulator keeps track of the global state of the system, and mediates communication between the other entities.
+	* Network controller: It is the oldest node in the network which acts as the bridging node for all communication that happen withing the network.
+	* Entity Manager: It is the server that controls all the ships present in space. It is also responsible for managing and updating the ephimeral networks.
+	* Controller Manager: This server is responsible for handling the network controller ships. It redirects the messages to the corresponding network and manages the flow messages including the ones manually injected in the system.
+	* Simulator: In the real world we would call this base reality, however since were not actually sending email to Neptune we’ve gotta simulate it somehow. The physics simulator keeps track of the global state of the system, and mediates communication between the other entities.
 
 There exists multiple ships in open space. Each ship has a communication range, multiple interconnected ships thus creating a chained network. All communication in the network are controlled, managed and acted on by the oldest node in the network (network controller). The simulator will initialize a new ship at a random time, location, speed and communication range. 
 
@@ -107,15 +90,16 @@ A ship that is the oldest entity in the network. It processes every messages tha
 	* List of ships that are part of the Ephimeral network.
 	* Capability to mange and process the messages being relayed throught he network.
 
-## Entity Server
+## Entity Manager
 A server that handles all the ships. It is responsible for manageing and creating ephimeral networks and updating the ship and the network properties with respet to time. It is also responsible for updating and nominating the network controller.
 
-## Controller Server
+## Controller Manager
 Like the entity server this server is reponsible for handling all the network controllers. The controllers server handles all the externally injected messages comming into the ntwork and accordingly routing it throught the main controller that is responsible for the relaing the information the the intended ship.
 
 ## Physics Simulator
 
 The simulation of base reality. The simulator manages both the entity and the controller server. The simulator randomly injects new ships in the network and removes a few. The Simulator is also responsible for triggering the update operation that runs on all the ships to update their properties. The simulator will also be responsible for injecting new and random events in the system triggering actions by the controllers and effectivly the ships in the network.
+
 
 # API
 
