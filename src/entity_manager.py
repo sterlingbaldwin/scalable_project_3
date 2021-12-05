@@ -23,14 +23,14 @@ class EntityManager(Server):
             endpoint='/add_ship',
             name='add_ship',
             handler=self.add_ship,
-            methods=["POST"])
+            methods=["GET"])
         self.add_endpoint(
             endpoint='/remove_ship',
             name='remove_ship',
             handler=self.remove_ship,
             methods=["POST"])
         self.controller_endpoint = kwargs.get('controller_manager_address')
-    
+
     def add_ship(self, request: Request):
         """
         Adds a new ship to the _element_details list
@@ -44,9 +44,9 @@ class EntityManager(Server):
         """
         try:
             ship_element = Ship(
-                request.form.get('ship_id'),
-                request.form.get('simulator_address'),
-                request.form.get('ship_port')
+                request.args.get('ship_id'),
+                request.args.get('simulator_address'),
+                request.args.get('ship_port')
             )
             self._element_details[ship_element.id] = ship_element
             res = Response(response=f"Added new ship: {ship_element.id}", status=200)

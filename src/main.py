@@ -43,9 +43,11 @@ def main():
         port=args.port)
     try:
         sim()
+    except KeyboardInterrupt as e:
+        print("Caught interrupt KeyboardInterrupt")
     except Exception as e:
-        print("Caught interrupt")
-        print(repr(e))
+        print(f"Caught exception {repr(e)}")
+    finally:
         sim.shutdown_services()
         sim.shutdown()
     return 0

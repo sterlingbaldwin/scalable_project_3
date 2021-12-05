@@ -60,7 +60,7 @@ class Simulator(Server):
             "ship_port": self._port }
         ip = choice(PI_ADDRESSES["entities"])
         url = f"http://{ip}:{self._entity_managers[ip]['port']}/add_ship"
-        self.send_request(url=url, method="POST", params=ship_data)
+        self.send_request(url=url, method="GET", params=ship_data)
 
     def send_request(self, url, method="GET", params=None):
         session = requests.Session()
