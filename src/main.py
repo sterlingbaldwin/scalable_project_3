@@ -43,8 +43,9 @@ def main():
         port=args.port)
     try:
         sim()
-    except:
+    except Exception as e:
         print("Caught interrupt")
+        print(repr(e))
         sim.shutdown_services()
         sim.shutdown()
     return 0
