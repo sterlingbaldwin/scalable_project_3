@@ -29,6 +29,11 @@ class EntityManager(Server):
             name='remove_ship',
             handler=self.remove_ship,
             methods=["POST"])
+        self.add_endpoint(
+            endpoint='/add_to_network',
+            name='add_to_network',
+            handler=self.add_to_network,
+            methods=["GET"])
         self.controller_endpoint = kwargs.get('controller_manager_address')
 
     def add_ship(self, request: Request):
@@ -64,13 +69,13 @@ class EntityManager(Server):
             Response with status 200 on success, 400 otherwise
         """
         try:
-            self._elementList = [element for element in self._elementList if element.id != request.form.get('ship_id')]
+            self._element_details.pop(request.form.get('ship_id'))
             res = Response(response=f"Removed Ship: {request.form.get('ship_id')}", status=200)
         except Exception as e:
             res = Response(response=f"Error handling remove_ship request: {repr(e)}", status=400)
         return res
 
-    def add_to_network(self, shipEntity: Ship):
+    def add_to_network(self, request:Request):
         """
         Adds a ship to the networks dataframe. If no networks exist,
             a new network is created and the ship is added to it,
@@ -82,49 +87,54 @@ class EntityManager(Server):
         Returns:
             None
         """
+        try:
+            ship_id = request.args.get("ship_id")
+            shipEntity = self._element_details[ship_id]
+            # there are no networks yet
+            if self._network_details.shape[0] == 0:
+                self.__max_network += 1
+                self._network_details[self._network_details.shape[0]] = {
+                    'ship_id': ship_id,
+                    'network': self.__max_network
+                }
+                shipEntity.create_network(self.controller_endpoint, self.__max_network, True)
+                res = Response(response=f"Added to network: {ship_id}", status=200)
+            loc = np.array(shipEntity.loc)
+            networkList = []
+            for ship in self._network_details.to_dict('records'):
+                shipobj = self._element_details[ship['ship_id']]
+                refLoc = np.array(shipobj.loc)
+                distance = np.linalg.norm(loc - refLoc)
+                if distance < shipEntity.range & distance < shipobj.range:
+                    networkList.append(ship['network'])
 
-        # there are no networks yet
-        if self._network_details.shape[0] == 0:
-            self.__max_network += 1
-            self._network_details[self._network_details.shape[0]] = {
-                'ship_id': shipEntity.id,
-                'network': self.__max_network
-            }
-            shipEntity.create_network(self.controller_endpoint, self.__max_network, True)
-            return
-        
-        loc = np.array(shipEntity.loc)
-        networkList = []
-        for ship in self._network_details.to_dict('records'):
-            shipobj = self._element_details[ship['ship_id']]
-            refLoc = np.array(shipobj.loc)
-            distance = np.linalg.norm(loc - refLoc)
-            if distance < shipEntity.range & distance < shipobj.range:
-                networkList.append(ship['network'])
-
-        # the ship wasnt added to any networks
-        if len(networkList) == 0:
-            self.__max_network += 1
-            self._network_details[self._network_details.shape[0]] = {
-                'ship_id': shipEntity.id,
-                'network': self.__max_network
-            }
+            # the ship wasnt added to any networks
+            if len(networkList) == 0:
+                self.__max_network += 1
+                self._network_details[self._network_details.shape[0]] = {
+                    'ship_id': shipEntity.id,
+                    'network': self.__max_network
+                }
+                
+                shipEntity.create_network(self.controller_endpoint, self.__max_network, True)
+                return
             
-            shipEntity.create_network(self.controller_endpoint, self.__max_network, True)
-            return
+            # find the largers network and add the ship
+            maxnetwork = self._network_details.loc[self._network_details['network'].isin(networkList)].groupby(['network']).count().idxmax()[0]
+            self._network_details[self._network_details.shape[0]] = {
+                'ship_id': shipEntity.id,
+                'network': maxnetwork
+            }
+            shipEntity.create_network(self.controller_endpoint, maxnetwork, False)
+            self._network_details.loc[self._network_details['network'].isin(networkList), 'network'] = maxnetwork
+            for ship_id in list(self._network_details.loc[self._network_details['network'].isin(networkList), 'ship_id']):
+                self._element_details[ship_id].network = maxnetwork
+            requests.post(url = self.controller_endpoint, json = {'actualNetwork': maxnetwork, 'mergedNetwork': networkList})
+        except Exception as e:
+            res = Response(response=f"Error handling add_to_network request: {repr(e)}", status=400)
+        return res
         
-        # find the largers network and add the ship
-        maxnetwork = self._network_details.loc[self._network_details['network'].isin(networkList)].groupby(['network']).count().idxmax()[0]
-        self._network_details[self._network_details.shape[0]] = {
-            'ship_id': shipEntity.id,
-            'network': maxnetwork
-        }
-        shipEntity.create_network(self.controller_endpoint, maxnetwork, False)
-        self._network_details.loc[self._network_details['network'].isin(networkList), 'network'] = maxnetwork
-        for ship_id in list(self._network_details.loc[self._network_details['network'].isin(networkList), 'ship_id']):
-            self._element_details[ship_id].network = maxnetwork
-        requests.post(url = self.controller_endpoint, json = {'actualNetwork': maxnetwork, 'mergedNetwork': networkList})
-
+        
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Run the EntityManager")
@@ -138,9 +148,11 @@ if __name__ == "__main__":
         "--secret",
         type=str)
     args = parser.parse_args()
+    # mock controller manager address with 3000
     em = EntityManager(
         address=args.host,
         port=args.port,
-        secret=args.secret)
+        secret=args.secret,
+        controller_manager_address='http://127.0.0.1:3000/add_controller')
     em.start_blocking()
     sys.exit(0)

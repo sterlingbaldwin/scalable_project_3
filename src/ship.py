@@ -28,7 +28,7 @@ class Ship:
     """
     def __init__(self, ship_id: str, simulator_address: str, port: str) -> None:
         self.__loc = (0.0, 0.0)
-        self._id = id
+        self._id = ship_id
         self._simulator_port = port
         self._simulator_address = simulator_address
 
@@ -189,7 +189,7 @@ class Ship:
         self._network = network
         if is_controller:
             return self.make_controller(API_ENDPOINT)
-        req = requests.post(url=API_ENDPOINT, json={'shipid':self.id, 'network': network})
+        req = requests.post(url=API_ENDPOINT, json={'ship_id':self.id, 'network': network})
         if req.status_code == 200:
             return True
         return False
