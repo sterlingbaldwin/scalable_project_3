@@ -17,7 +17,8 @@ USER = os.environ['USER']
 PROJECT_PATH = f"/users/pgrad/{USER}/projects/scalable_project_3/"
 VENV_PATH = f".venv/bin/activate"
 PI_ADDRESSES = {
-    "controllers": ["10.35.70.29"], 
+    # "controllers": ["10.35.70.29"], 
+    "controllers": ["10.35.70.30"], 
     "entities": ["10.35.70.30"]
 }
 
@@ -26,6 +27,7 @@ class Simulator(Server):
         super(Simulator, self).__init__(*args, **kwargs)
         self._num_ships = kwargs.get('num_ships')
         self._world_size = kwargs.get('world_size')
+        self._dont_setup = kwargs.get('dont_setup')
         self._entity_managers = {
             ip: {
                 'secret': uuid4().hex,
@@ -43,8 +45,16 @@ class Simulator(Server):
     
     def __call__(self):
         self.start()
-        self.setup_entity_manager()
-        self.setup_controller_manager()
+        if self._dont_setup:
+            manager_info = self._entity_managers[PI_ADDRESSES["entities"][0]]
+            manager_info['port'] = self._port + 1
+            
+            manager_info = self._controller_managers[PI_ADDRESSES["controllers"][0]]
+            manager_info['port'] = self._port + 2
+        else:
+            self.setup_entity_manager()
+            self.setup_controller_manager()
+        sleep(3) # give flask some time to get up and running
         for _ in range(self._num_ships):
             self.generate_ship()
         self.update_cycle()
@@ -54,7 +64,13 @@ class Simulator(Server):
             sleep(1)
 
     def generate_ship(self):
-        pass
+        ship_data = {
+            "ship_id": uuid4().hex,
+            "simulator_address": self._address,
+            "ship_port": self._port }
+        ip = choice(PI_ADDRESSES["entities"])
+        url = f"http://{ip}:{self._entity_managers[ip]['port']}/add_ship"
+        self.send_request(url=url, method="GET", params=ship_data)
 
     def send_request(self, url, method="GET", params=None):
         session = requests.Session()
@@ -62,15 +78,15 @@ class Simulator(Server):
         if method == "GET": 
             if params is not None:
                 url += f"?{urllib.parse.urlencode(params)}"
-            req = requests.Request(method, url)
+            req = requests.Request("GET", url)
         elif method == "POST":
             if params is not None:
                 data = json.dumps(params)
             else:
                 data = {}
-            req = requests.Request(method, url, data=data)
+            req = requests.Request("POST", url, data=data)
         
-        print(f"Sending GET request to url: {url}")
+        print(f"Sending {method} request to url: {url}")
         res = session.send(session.prepare_request(req))
         if not res.status_code == 200:
             print(f"Got an error response to request: {url}; {res.content}")

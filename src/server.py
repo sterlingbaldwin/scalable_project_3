@@ -7,7 +7,7 @@ import re
 import sys
 import os
 import json
-from typing import Callable
+from typing import Callable, List
 import numpy as np
 from time import sleep
 from flask.wrappers import Request
@@ -86,8 +86,9 @@ class Server:
             res = Response(response=f"Unable to shutdown: {repr(e)}", status=400)
         return res
     
-    def add_endpoint(self, endpoint: str, name: str, handler: Callable) -> None:
-        self._app.add_url_rule(endpoint, name, EndpointAction(handler), methods=["GET", "POST"])
+    def add_endpoint(self, endpoint: str, name: str, handler: Callable, methods:List = ["GET", "POST"]) -> None:
+        print(f"Registering endpoint {endpoint} which accepts methods {methods}")
+        self._app.add_url_rule(endpoint, name, EndpointAction(handler), methods=methods)
 
     def ping(self, request: Request):
         """
