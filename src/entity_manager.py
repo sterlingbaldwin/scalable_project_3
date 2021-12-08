@@ -34,6 +34,12 @@ class EntityManager(Server):
             name='add_to_network',
             handler=self.add_to_network,
             methods=["GET"])
+        self.add_endpoint(
+            endpoint='/message_in_range',
+            name="message_in_range",
+            handler=self.message_in_range,
+            methods=["GET"]
+        )
         self.controller_endpoint = kwargs.get('controller_manager_address')
 
     def add_ship(self, request: Request):
@@ -133,7 +139,20 @@ class EntityManager(Server):
         except Exception as e:
             res = Response(response=f"Error handling add_to_network request: {repr(e)}", status=400)
         return res
-        
+
+    def message_in_range(self, request:Request):
+        try:
+            source_id = request.args.get("source_id")
+            dest_id = request.args.get("destination_id")
+            source_network = self._network_details.loc[(self._network_details['ship_id'] == source_id)]['network'].to_list()[0]
+            dest_network = self._network_details.loc[(self._network_details['dest_id'] == dest_id)]['network'].to_list()[0]
+            if source_network == dest_network:
+                res = Response(response="Can send message", status=200)
+            else:
+                res = Response(response="No message routing found", status=200)
+        except Exception as e:
+            res = Response(response=f"Error handling message_in_range request: {repr(e)}", status=400)
+        return res
         
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
