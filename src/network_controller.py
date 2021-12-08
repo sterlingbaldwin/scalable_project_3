@@ -51,12 +51,18 @@ class NetworkController(Ship):
         session = requests.Session()
         session.trust_env = False
         # send request to the network manager to see if in the same network
-        request = session.prepare_request(requests.Request('GET', "127.0.0.1:33000/message_in_range", params={
+        request = session.prepare_request(requests.Request('GET', f"{self._simulator_address}/{self._simulator_port}/message_in_range", params={
             "source_id": source_id,
             "destination_id": destination_id,
             "contents": contents
         }))
         res = requests.send(request)
+        if (res == 'Can send message'):
+            self.messages.loc[self.messages.shape[0]] = {
+                "source_id": source_id,
+                "destination_id": destination_id,
+                "message": contents
+            }
         return res
         
 
