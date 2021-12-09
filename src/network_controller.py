@@ -51,13 +51,26 @@ class NetworkController(Ship):
         session = requests.Session()
         session.trust_env = False
         # send message to the entity manager so that it can be forwarded to the intended Entity
-        request = session.prepare_request(requests.Request('post', url=f"{self._simulator_address}/{self._simulator_port}/netweork_controller_message", params={
-            "source_id": source_id,
-            "destination_id": destination_id,
-            "contents": contents
-        }))
-        res = session.send(request)
-        return res.status_code == 200
+        if destination_id is None:
+            for entity in self._network_ships:
+                request = session.prepare_request(requests.Request('post', url=f"{self._simulator_address}/{self._simulator_port}/netweork_controller_message", params={
+                    "source_id": source_id,
+                    "destination_id": entity,
+                    "contents": contents
+                }))
+                res = session.send(request)
+                if res.status_code != 200:
+                    return f"message Not sent to ship {entity}"
+        else:
+            request = session.prepare_request(requests.Request('post', url=f"{self._simulator_address}/{self._simulator_port}/netweork_controller_message", params={
+                    "source_id": source_id,
+                    "destination_id": destination_id,
+                    "contents": contents
+                }))
+            res = session.send(request)
+            if res.status_code != 200:
+                return f"message Not sent to ship {destination_id}"
+
 
     def add_ships(self, new_ships: list):
         self._network_ships += new_ships
