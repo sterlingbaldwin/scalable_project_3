@@ -50,6 +50,32 @@ class NetworkController(Ship):
         contents = message.contents
         session = requests.Session()
         session.trust_env = False
+        # send request to the network manager to see if in the same network
+        request = session.prepare_request(requests.Request('GET', f"{self._simulator_address}/{self._simulator_port}/message_in_range", params={
+            "source_id": source_id,
+            "destination_id": destination_id,
+            "contents": contents
+        }))
+        res = session.send(request)
+        if (res.text == "True"):
+            self.messages.loc[self.messages.shape[0]] = {
+                "source_id": source_id,
+                "destination_id": destination_id,
+                "message": contents
+            }
+        return bool(res.text)
+
+
+    def message_manager(self, message: Message):
+        """[summary]
+
+            Pass source and dest to the controller manager to see if in the same network
+        """
+        source_id = message.source
+        destination_id = message.destination
+        contents = message.contents
+        session = requests.Session()
+        session.trust_env = False
         # send message to the entity manager so that it can be forwarded to the intended Entity
         if destination_id is None:
             for entity in self._network_ships:
