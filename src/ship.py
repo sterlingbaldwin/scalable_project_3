@@ -18,7 +18,8 @@ from numpy.random import uniform
 from datetime import datetime
 import json
 from flask import Flask
-
+import re
+from message import Message, MessageType
 
 class Ship:
     """Ship Class
@@ -193,6 +194,21 @@ class Ship:
         if req.status_code == 200:
             return True
         return False
+    
+    def recieved_message(self, message:Message):
+        if message.message_type == MessageType(1):
+            self._message.append({
+                'source': message.source,
+                'content': message.content
+            })
+        elif message.message_type == MessageType(2):
+            self.__speed = int(message.contents)
+        elif message.message_type == MessageType(3):
+            self.__speed = 0
+        elif message.message_type == MessageType(4):
+            self.__speed = 0
+            # Generate message of breakdown to the entire network
+
         
 
 if __name__ == "__main__":
