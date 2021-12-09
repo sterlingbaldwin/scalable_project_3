@@ -8,6 +8,7 @@ from flask.wrappers import Request, Response
 import sys
 import argparse
 import numpy as np
+from numpy.lib.utils import source
 import pandas as pd
 from server import Server
 from ship import Ship
@@ -99,43 +100,46 @@ class EntityManager(Server):
             # there are no networks yet
             if self._network_details.shape[0] == 0:
                 self.__max_network += 1
-                self._network_details[self._network_details.shape[0]] = {
+                self._network_details.loc[self._network_details.shape[0]] = {
                     'ship_id': ship_id,
                     'network': self.__max_network
                 }
                 shipEntity.create_network(self.controller_endpoint, self.__max_network, True)
                 res = Response(response=f"Added to network: {ship_id}", status=200)
+                return res
             loc = np.array(shipEntity.loc)
+
             networkList = []
             for ship in self._network_details.to_dict('records'):
                 shipobj = self._element_details[ship['ship_id']]
                 refLoc = np.array(shipobj.loc)
                 distance = np.linalg.norm(loc - refLoc)
-                if distance < shipEntity.range & distance < shipobj.range:
+                if distance <= shipEntity.range and distance <= shipobj.range:
                     networkList.append(ship['network'])
-
             # the ship wasnt added to any networks
             if len(networkList) == 0:
                 self.__max_network += 1
-                self._network_details[self._network_details.shape[0]] = {
+                self._network_details.loc[self._network_details.shape[0]] = {
                     'ship_id': shipEntity.id,
                     'network': self.__max_network
                 }
                 
                 shipEntity.create_network(self.controller_endpoint, self.__max_network, True)
-                return
+                res = Response(response=f"Added to network: {ship_id}", status=200)
+                return res
             
             # find the largers network and add the ship
             maxnetwork = self._network_details.loc[self._network_details['network'].isin(networkList)].groupby(['network']).count().idxmax()[0]
-            self._network_details[self._network_details.shape[0]] = {
+            self._network_details.loc[self._network_details.shape[0]] = {
                 'ship_id': shipEntity.id,
                 'network': maxnetwork
             }
-            shipEntity.create_network(self.controller_endpoint, maxnetwork, False)
+            shipEntity.create_network(self.controller_endpoint, int(maxnetwork), False)
             self._network_details.loc[self._network_details['network'].isin(networkList), 'network'] = maxnetwork
             for ship_id in list(self._network_details.loc[self._network_details['network'].isin(networkList), 'ship_id']):
                 self._element_details[ship_id].network = maxnetwork
             requests.post(url = self.controller_endpoint, json = {'actualNetwork': maxnetwork, 'mergedNetwork': networkList})
+            res = Response(response=f"Added to network: {ship_id}", status=200)
         except Exception as e:
             res = Response(response=f"Error handling add_to_network request: {repr(e)}", status=400)
         return res
@@ -145,11 +149,11 @@ class EntityManager(Server):
             source_id = request.args.get("source_id")
             dest_id = request.args.get("destination_id")
             source_network = self._network_details.loc[(self._network_details['ship_id'] == source_id)]['network'].to_list()[0]
-            dest_network = self._network_details.loc[(self._network_details['dest_id'] == dest_id)]['network'].to_list()[0]
+            dest_network = self._network_details.loc[(self._network_details['ship_id'] == dest_id)]['network'].to_list()[0]
             if source_network == dest_network:
-                res = Response(response="Can send message", status=200)
+                res = Response(response="True", status=200)
             else:
-                res = Response(response="No message routing found", status=200)
+                res = Response(response="False", status=200)
         except Exception as e:
             res = Response(response=f"Error handling message_in_range request: {repr(e)}", status=400)
         return res
@@ -167,11 +171,11 @@ if __name__ == "__main__":
         "--secret",
         type=str)
     args = parser.parse_args()
-    # mock controller manager address with 3000
+    # mock controller manager address
     em = EntityManager(
         address=args.host,
         port=args.port,
         secret=args.secret,
-        controller_manager_address='http://127.0.0.1:3000/add_controller')
+        controller_manager_address='http://127.0.0.1:5000/add_controller')
     em.start_blocking()
     sys.exit(0)

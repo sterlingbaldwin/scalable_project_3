@@ -18,7 +18,7 @@ import requests
 
 class NetworkController(Ship):
     def __init__(self, shipID:str, simulator_address: str, shipPort: str, host:str = "127.0.0.1", port: str = "3000", size:int = 100_000, messages: list = []) -> None:
-        super().__init__(shipID, simulator_address, shipPort, messages)
+        super().__init__(shipID, simulator_address, shipPort)
         self.messages = pd.DataFrame(columns=['source_id', 'destination_id', 'message'])
         self.host = host
         self.port = port
@@ -56,14 +56,14 @@ class NetworkController(Ship):
             "destination_id": destination_id,
             "contents": contents
         }))
-        res = requests.send(request)
-        if (res == 'Can send message'):
+        res = session.send(request)
+        if (res.text == "True"):
             self.messages.loc[self.messages.shape[0]] = {
                 "source_id": source_id,
                 "destination_id": destination_id,
                 "message": contents
             }
-        return res
+        return bool(res.text)
         
 
     
