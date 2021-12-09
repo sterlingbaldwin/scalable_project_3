@@ -25,6 +25,31 @@ class ControllerManager(Server):
             endpoint='/remove_controller',
             name='remove_controller',
             handler=self.remove_controller)
+        self.add_endpoint(
+            endpoint='/merge_network',
+            name='merge_network',
+            handler=self.merge_network
+        )
+        self.add_endpoint(
+            endpoint="/recieve_ship_messages",
+            name="recieve_ship_messages",
+            handler=self.recieve_ship_messages
+        )
+        self.add_endpoint(
+            endpoint="/send_injection_message",
+            name="send_injection_message",
+            handler=self.send_injection_message
+        )
+        self.add_endpoint(
+            endpoint="/add_to_network",
+            name="add_to_network",
+            handler=self.add_to_network
+        )
+        self.add_endpoint(
+            endpoint="/remove_from_network",
+            name="remove_from_network",
+            handler=self.remove_from_network
+        )
 
     def add_controller(self, request: Request):
         """
@@ -73,8 +98,8 @@ class ControllerManager(Server):
 
     def merge_network(self, request: Request):
         try:
-            actual_network = request.form.get('actual_network')
-            merge_networks_list = request.form.get('merge_networks_list')
+            actual_network = request.args.get('actual_network')
+            merge_networks_list = request.args.get('merge_networks_list')
             new_main_controller = self._network_details.loc[self._network_details['network'] == actual_network, 'controller_id'][0]
             for controller in self._network_details.loc[self._network_details['network'].isin(merge_networks_list), 'controller_id']:
                 self._controller_list[new_main_controller].add_ships(self._controller_list[controller])
@@ -111,6 +136,14 @@ class ControllerManager(Server):
         except Exception as e:
             res = Response(response=f"Error handling send_message request: {repr(e)}", status=400)
         return res
+    
+    def add_to_network(self, request: Request):
+        controler_id = self._network_details.loc[self._network_details['network'] == request.args.get('network'), 'controller_id'][0]
+        self._controller_list[controler_id].add_ships([request.args.get('ship_id')])
+    
+    def remove_from_network(self, request: Request):
+        controler_id = self._network_details.loc[self._network_details['network'] == request.args.get('network'), 'controller_id'][0]
+        self._controller_list[controler_id].remove_ship(request.args.get('ship_id'))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

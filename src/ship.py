@@ -10,6 +10,7 @@ __author__ = "Scalable Module Group 15"
 __version__ = 1.0
 
 import json
+from typing_extensions import ParamSpecKwargs
 import urllib
 import requests
 from time import sleep
@@ -197,19 +198,17 @@ class Ship:
         Returns:
             bool: If successfully updated the ship as a controller
         """
-        data = {
+        session = requests.Session()
+        session.trust_env = False
+        params = {
             'id': self.id
-            ,'messages':self._messages
-            ,'itinerary':self.__itinerary
-            ,'loc':self.__loc
             ,'simulator_port':self._simulator_port
             ,'simulator_address':self._simulator_address
-            ,'range':self.__range
-            ,'speed':self.__speed
             ,'network': self._network
         }
-        req = requests.post(url = API_ENDPOINT, json = data)
-        if req.status_code == 200:
+        request = session.prepare_request(requests.Request('GET', url=API_ENDPOINT, params=params))
+        ouput_res = session.send(request)
+        if ouput_res.status_code == 200:
             self._is_controller = True
             return True
         return False
@@ -226,9 +225,17 @@ class Ship:
         """
         self._network = network
         if is_controller:
-            return self.make_controller(API_ENDPOINT)
-        req = requests.post(url=API_ENDPOINT, json={'ship_id':self.id, 'network': network})
-        if req.status_code == 200:
+            return self.make_controller(API_ENDPOINT+'/add_controller')
+        session = requests.Session()
+        session.trust_env = False
+        params = {
+            'ship_id': self.id,
+            'network': network
+        }
+        request = session.prepare_request(requests.Request('GET', url=API_ENDPOINT + '/add_to_network', params=params))
+        ouput_res = session.send(request)
+        if ouput_res.status_code == 200:
+            self._is_controller = True
             return True
         return False
     
