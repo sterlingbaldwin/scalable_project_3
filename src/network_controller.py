@@ -48,13 +48,15 @@ class NetworkController(Ship):
         source_id = message.source
         destination_id = message.destination
         contents = message.contents
+        message_type = message.message_type
         session = requests.Session()
         session.trust_env = False
         # send message to the entity manager so that it can be forwarded to the intended Entity
         request = session.prepare_request(requests.Request('post', url=f"{self._simulator_address}/{self._simulator_port}/netweork_controller_message", params={
             "source_id": source_id,
             "destination_id": destination_id,
-            "contents": contents
+            "contents": contents,
+            "message_type": message_type
         }))
         res = session.send(request)
         return res.status_code == 200

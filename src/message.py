@@ -14,10 +14,10 @@ class MessageType(Enum):
     - stop: stop the ship
     - fix: fix the ship
     """
-    message: 1
-    change_speed: 2
-    stop: 3
-    fix: 4
+    communication = 1
+    change_speed = 2
+    change_range = 3
+    stop = 4
 
 @dataclass
 class Message:

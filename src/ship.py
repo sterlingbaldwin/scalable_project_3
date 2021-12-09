@@ -21,6 +21,7 @@ from flask import Flask
 import numpy as np
 import time
 import math
+from message import Message, MessageType
 
 
 class Ship:
@@ -176,11 +177,17 @@ class Ship:
             raise ValueError(f"Error from the controller: {request} from request: {url} and response: {request.content.decode('utf-8')}")
         return request
     
-    def generate_message(self):
+    def generate_message(self, source_id: int, dest_id: int, content: str, messageType: int):
         """
         Generate a new message
         """
-        pass
+        message = Message(source=source_id, destination=dest_id, content=content, message_type=MessageType(messageType))
+        if (MessageType(messageType).name == 'communication'):
+            res = self.make_request_to_controller(endpoint='/receive_ship_messages', dict={'message': message}, method='POST')
+        else:
+            dest_id = None
+            res = self.make_request_to_controller(endpoint='/send_injection_messages', dict={'message': message}, method='POST')
+        return res
 
     def make_controller(self, API_ENDPOINT:str) -> bool:
         """Make a request to the controller server to update the ship entity as a network controller
