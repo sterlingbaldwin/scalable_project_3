@@ -18,6 +18,9 @@ from numpy.random import uniform
 from datetime import datetime
 import json
 from flask import Flask
+import numpy as np
+import time
+import math
 
 
 class Ship:
@@ -32,8 +35,11 @@ class Ship:
         self._simulator_port = port
         self._simulator_address = simulator_address
 
-        self.__range = 0
-        self.__speed = 0
+        self.__range = 100
+        self.__speed = 10
+        self.__source = (0, 0)
+        self.__destination = (100, 100)
+        self.__create_time = time.time()
         self.__itinerary = []
         self.__COMMUNICATION_RANGE = [100, 1000]
         self.__SPEED_RANGE = [100, 1000]
@@ -69,12 +75,38 @@ class Ship:
         else:
             raise ValueError(f'Speed Range for the ships is between {self.__SPEED_RANGE[0]} & {self.__SPEED_RANGE[1]}')
     
-    def update(self):
+    def update(self, speed: float = 0, range: int = 0):
         """[summary]
         
             update the speed, location, range
         """
-        pass
+        if speed in self.__SPEED_RANGE:
+            self.__speed = speed
+        if range in self.__COMMUNICATION_RANGE:
+            self.__range = range
+        # update the location 
+        new_loc_x = 0
+        new_loc_y = 0
+        current_time = time.time()
+        angle = math.atan((self.__destination[1] - self.__source[1]) / (self.__destination[0] - self.__source[0]))
+        moved_distance = self.__speed * (current_time - self.__create_time)
+        if self.__destination[1] > self.__source[1] and self.__destination[0] > self.__source[0]:
+            new_loc_x = self.__loc[0] + math.cos(angle) * moved_distance
+            new_loc_y = self.__loc[1] + math.sin(angle) * moved_distance
+        elif self.__destination[1] < self.__source[1] and self.__destination[0] > self.__source[0]:
+            new_loc_x = math.cos(angle) * moved_distance + self.__loc[0]
+            new_loc_y = self.__loc[1] - math.sin(angle) * moved_distance
+        elif self.__destination[1] > self.__source[1] and self.__destination[0] < self.__source[0]:
+            new_loc_x = self.__loc[0] - math.cos(angle) * moved_distance
+            new_loc_y = self.__loc[1] + math.sin(angle) * moved_distance
+        elif self.__destination[1] < self.__source[1] and self.__destination[0] < self.__source[0]:
+            new_loc_x = self.__loc[0] - math.cos(angle) * moved_distance
+            new_loc_y = self.__loc[1] - math.sin(angle) * moved_distance
+        else:
+            pass
+        
+        self.__loc = (round(new_loc_x, 2), round(new_loc_y, 2))
+
 
     @property
     def loc(self):

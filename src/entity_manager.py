@@ -41,6 +41,12 @@ class EntityManager(Server):
             handler=self.message_in_range,
             methods=["GET"]
         )
+        self.add_endpoint(
+            endpoint='/update',
+            name='update',
+            handler=self.update,
+            methods=['GET']
+        )
         self.controller_endpoint = kwargs.get('controller_manager_address')
 
     def add_ship(self, request: Request):
@@ -156,8 +162,27 @@ class EntityManager(Server):
                 res = Response(response="False", status=200)
         except Exception as e:
             res = Response(response=f"Error handling message_in_range request: {repr(e)}", status=400)
-        return res
-        
+        return res 
+
+    def update(self, request: Request):
+        """
+        Go through the element_details table to update the ship details
+
+        Parametes:
+        None
+        Return:
+
+        """
+        try:
+            for ship_id in self._element_details:
+                self._element_details[ship_id].update()
+                print(self._element_details[ship_id].loc)
+            res = Response(response=f"Have updated", status=200)
+            
+        except Exception as e:
+            res = Response(response=f"Error handling update request: {repr(e)}", status=400)
+        return res  
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Run the EntityManager")
