@@ -51,6 +51,12 @@ class EntityManager(Server):
             handler=self.update,
             methods=['GET']
         )
+        self.add_endpoint(
+            endpoint='controller_message',
+            name='controller_message',
+            handler=self.netweork_controller_message,
+            methods=['GET']
+        )
         self.controller_endpoint = kwargs.get('controller_manager_address')
 
     def add_ship(self, request: Request):
@@ -107,6 +113,8 @@ class EntityManager(Server):
         try:
             ship_id = request.args.get("ship_id")
             shipEntity = self._element_details[ship_id]
+            session = requests.Session()
+            session.trust_env = False
             # there are no networks yet
             if self._network_details.shape[0] == 0:
                 self.__max_network += 1
@@ -148,7 +156,11 @@ class EntityManager(Server):
             self._network_details.loc[self._network_details['network'].isin(networkList), 'network'] = maxnetwork
             for ship_id in list(self._network_details.loc[self._network_details['network'].isin(networkList), 'ship_id']):
                 self._element_details[ship_id].network = maxnetwork
-            requests.post(url = self.controller_endpoint, json = {'actualNetwork': maxnetwork, 'mergedNetwork': networkList})
+            # requests.post(url = self.controller_endpoint + '/merge_network', json = {})
+            request = session.prepare_request(requests.Request('GET', url=f"{self.controller_endpoint}/merge_network", params={
+                    'actualNetwork': maxnetwork, 'mergedNetwork': networkList
+                }))
+            ouput_res = session.send(request)
             res = Response(response=f"Added to network: {ship_id}", status=200)
         except Exception as e:
             res = Response(response=f"Error handling add_to_network request: {repr(e)}", status=400)

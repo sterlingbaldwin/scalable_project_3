@@ -17,7 +17,7 @@ from message import Message
 import requests
 
 class NetworkController(Ship):
-    def __init__(self, shipID:str, simulator_address: str, shipPort: str, host:str = "127.0.0.1", port: str = "3000", size:int = 100_000, messages: list = []) -> None:
+    def __init__(self, shipID:str, simulator_address: str, shipPort: str, host:str = "127.0.0.1", port: str = "3000", size:int = 100_000, messages: list = [], entity_server:str = "127.0.0.1") -> None:
         super().__init__(shipID, simulator_address, shipPort)
         self.messages = pd.DataFrame(columns=['source_id', 'destination_id', 'message'])
         self.host = host
@@ -25,6 +25,7 @@ class NetworkController(Ship):
         self._app = None
         self._world_size = size
         self._time = datetime.now()
+        self._entity_server = entity_server
         self._network_ships = []
 
     def get_network(self):
@@ -80,7 +81,7 @@ class NetworkController(Ship):
         # send message to the entity manager so that it can be forwarded to the intended Entity
         if destination_id is None:
             for entity in self._network_ships:
-                request = session.prepare_request(requests.Request('post', url=f"{self._simulator_address}/{self._simulator_port}/netweork_controller_message", params={
+                request = session.prepare_request(requests.Request('GET', url=f"{self._entity_server}/controller_message", params={
                     "source_id": source_id,
                     "destination_id": entity,
                     "contents": contents
@@ -89,7 +90,7 @@ class NetworkController(Ship):
                 if res.status_code != 200:
                     return f"message Not sent to ship {entity}"
         else:
-            request = session.prepare_request(requests.Request('post', url=f"{self._simulator_address}/{self._simulator_port}/netweork_controller_message", params={
+            request = session.prepare_request(requests.Request('GET', url=f"{self._entity_server}/controller_message", params={
                     "source_id": source_id,
                     "destination_id": destination_id,
                     "contents": contents
