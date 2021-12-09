@@ -3,6 +3,7 @@
     managing all the network controllers.
 """
 import argparse
+from os import remove
 import sys
 from flask import Response
 from flask.wrappers import Request
@@ -13,7 +14,7 @@ import pandas as pd
 class ControllerManager(Server):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self._controller_list = []
+        self._controller_list = {}
         self._network_details = pd.DataFrame(columns=['network', 'controller_id'])
         self.add_endpoint(
             endpoint='/add_controller', 
@@ -41,7 +42,7 @@ class ControllerManager(Server):
                 request.form.get('simulator_address'),
                 request.form.get('ship_port')
             )
-            self._controller_list.append(controller)
+            self._controller_list[controller.id] = controller
             self._network_details.loc[self._network_details.shape[0]] = {
                 'network': request.form.get('network'),
                 'controller_id': request.form.get('ship_id')
@@ -62,11 +63,35 @@ class ControllerManager(Server):
         """
         try:
             ship_id = request.form.get('controller_id')
-            self._controller_list=[element for element in self._controller_list if element.id != ship_id]
+            self._controller_list.pop(ship_id.id)
             self._network_details.drop(self._network_details[self._network_details['network'].isin(request.form.get('network'))].index, inplace=True)
             res = Response(response=f"Removed network_controller: {ship_id}", status=200)
         except Exception as e:
             res = Response(response=f"Error handling remove_controller request: {repr(e)}", status=400)
+        return res
+
+    def merge_network(self, request: Request):
+        try:
+            actual_network = request.form.get('actual_network')
+            merge_networks_list = request.form.get('merge_networks_list')
+            new_main_controller = self._network_details.loc[self._network_details['network'] == actual_network, 'controller_id'][0]
+            for controller in self._network_details.loc[self._network_details['network'].isin(merge_networks_list), 'controller_id']:
+                self._controller_list[new_main_controller].add_ships(self._controller_list[controller])
+                self._controller_list.pop(controller)
+            self._network_details.drop(self._network_details[self._network_details['network'].isin(merge_networks_list)].index, inplace=True)
+        except Exception as e:
+            res = Response(response=f"Error handling merge_network request: {repr(e)}", status=400)
+        return res
+
+    def send_message(self, request: Request):
+        try:
+            ship_id = request.form.get('ship_id')
+            for ship in self._controller_list.keys():
+                if self._controller_list[ship].ship_in_network(ship) | self._controller_list[ship].id == ship_id | ship_id is None:
+                    self._controller_list[ship].message_carry_request(request.form.get('message'))
+            res = Response(response=f"Sent the message to the {ship_id}", status=200)
+        except Exception as e:
+            res = Response(response=f"Error handling send_message request: {repr(e)}", status=400)
         return res
     
 if __name__ == "__main__":
