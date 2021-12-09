@@ -48,6 +48,7 @@ class NetworkController(Ship):
         source_id = message.source
         destination_id = message.destination
         contents = message.contents
+        message_type = message.message_type
         session = requests.Session()
         session.trust_env = False
         # send request to the network manager to see if in the same network

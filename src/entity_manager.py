@@ -13,6 +13,10 @@ import pandas as pd
 from server import Server
 from ship import Ship
 import requests
+import configparser
+
+config = configparser.ConfigParser()
+config.read('Environment.ini')
 
 class EntityManager(Server):
     def __init__(self, *args, **kwargs) -> None:
@@ -40,6 +44,12 @@ class EntityManager(Server):
             name="message_in_range",
             handler=self.message_in_range,
             methods=["GET"]
+        )
+        self.add_endpoint(
+            endpoint='/update',
+            name='update',
+            handler=self.update,
+            methods=['GET']
         )
         self.controller_endpoint = kwargs.get('controller_manager_address')
 
@@ -144,20 +154,40 @@ class EntityManager(Server):
             res = Response(response=f"Error handling add_to_network request: {repr(e)}", status=400)
         return res
 
-    def message_in_range(self, request:Request):
+    def netweork_controller_message(self, request:Request):
         try:
-            source_id = request.args.get("source_id")
-            dest_id = request.args.get("destination_id")
-            source_network = self._network_details.loc[(self._network_details['ship_id'] == source_id)]['network'].to_list()[0]
-            dest_network = self._network_details.loc[(self._network_details['ship_id'] == dest_id)]['network'].to_list()[0]
-            if source_network == dest_network:
-                res = Response(response="True", status=200)
+            message = request.args.get("message")
+            message_type = message.message_type
+            dest_id = message.destination
+            if message_type.name == 'communication':
+                self._element_details[dest_id].receive_message(message)
+                res = Response(response=f"Communication success", status=200)
             else:
-                res = Response(response="False", status=200)
+                for ship_id in self._element_details:
+                    self._element_details[ship_id].receive_message(message)
+                res = Response(response=f"put Action success", status=200)
         except Exception as e:
             res = Response(response=f"Error handling message_in_range request: {repr(e)}", status=400)
-        return res
-        
+        return res 
+
+    def update(self, request: Request):
+        """
+        Go through the element_details table to update the ship details
+
+        Parametes:
+        None
+        Return:
+
+        """
+        try:
+            for ship_id in self._element_details:
+                self._element_details[ship_id].update()
+            res = Response(response=f"Have updated", status=200)
+            
+        except Exception as e:
+            res = Response(response=f"Error handling update request: {repr(e)}", status=400)
+        return res  
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Run the EntityManager")
@@ -170,12 +200,18 @@ if __name__ == "__main__":
     parser.add_argument(
         "--secret",
         type=str)
+    parser.add_argument(
+        "--endpoint",
+        type=str
+    )
     args = parser.parse_args()
+    hostIP = config['config']['hostIP']
+    port = config['config']['port']
     # mock controller manager address
     em = EntityManager(
         address=args.host,
         port=args.port,
         secret=args.secret,
-        controller_manager_address='http://127.0.0.1:5000/add_controller')
+        controller_manager_address=f'http://{hostIP}:{port}/{args.endpoint}')
     em.start_blocking()
     sys.exit(0)
