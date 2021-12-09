@@ -25,7 +25,7 @@ class NetworkController(Ship):
         self._app = None
         self._world_size = size
         self._time = datetime.now()
-        self._ships = []
+        self._network_ships = []
 
     def get_network(self):
         """[summary]
@@ -50,20 +50,20 @@ class NetworkController(Ship):
         contents = message.contents
         session = requests.Session()
         session.trust_env = False
-        # send request to the network manager to see if in the same network
-        request = session.prepare_request(requests.Request('GET', f"{self._simulator_address}/{self._simulator_port}/message_in_range", params={
+        # send message to the entity manager so that it can be forwarded to the intended Entity
+        request = session.prepare_request(requests.Request('post', url=f"{self._simulator_address}/{self._simulator_port}/netweork_controller_message", params={
             "source_id": source_id,
             "destination_id": destination_id,
             "contents": contents
         }))
         res = session.send(request)
-        if (res.text == "True"):
-            self.messages.loc[self.messages.shape[0]] = {
-                "source_id": source_id,
-                "destination_id": destination_id,
-                "message": contents
-            }
-        return bool(res.text)
-        
+        return res.status_code == 200
 
+    def add_ships(self, new_ships: list):
+        self._network_ships += new_ships
     
+    def remove_ship(self, ship_id:str):
+        self._network_ships.remove(ship_id)
+    
+    def ship_in_network(self, ship_id: str):
+        return ship_id in self._network_ships
