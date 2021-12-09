@@ -7,6 +7,7 @@ from os import remove
 import sys
 from flask import Response
 from flask.wrappers import Request
+import requests
 from server import Server
 from network_controller import NetworkController
 import pandas as pd
@@ -83,7 +84,7 @@ class ControllerManager(Server):
             res = Response(response=f"Error handling merge_network request: {repr(e)}", status=400)
         return res
 
-    def send_message(self, request: Request):
+    def send_injection_message(self, request: Request):
         try:
             ship_id = request.form.get('ship_id')
             for ship in self._controller_list.keys():
@@ -94,6 +95,23 @@ class ControllerManager(Server):
             res = Response(response=f"Error handling send_message request: {repr(e)}", status=400)
         return res
     
+    def recieve_ship_messages(self, request: Request):
+        try:
+            message = requests.form.get('message')
+            message_sent = False
+            for controller in self._controller_list.keys():
+                if self._controller_list[controller].ship_in_network(message.source):
+                    if self._controller_list[controller].ship_in_network(message.destination) | message.destination is None:
+                        self._controller_list[controller].message_carry_request(message)
+                        message_sent = True
+                        break
+                    else:
+                        break
+            res = Response(response=f"{message_sent}", status=200)
+        except Exception as e:
+            res = Response(response=f"Error handling send_message request: {repr(e)}", status=400)
+        return res
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Run the ControllerManager")
