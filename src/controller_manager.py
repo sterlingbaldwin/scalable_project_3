@@ -97,6 +97,15 @@ class ControllerManager(Server):
         return res
 
     def merge_network(self, request: Request):
+        """merge networks when a bridge entity comes into existance bridging two or more networks together.
+
+        Args:
+            actual_network (Request): main network that whose controller will become the main network
+            merging_network (Request): All the other networks that are going to get submerged in the main network.
+
+        Returns:
+            [Response]: A confirmation merge operation to complete
+        """
         try:
             actual_network = request.args.get('actual_network')
             merge_networks_list = request.args.get('merge_networks_list')
@@ -105,11 +114,20 @@ class ControllerManager(Server):
                 self._controller_list[new_main_controller].add_ships(self._controller_list[controller])
                 self._controller_list.pop(controller)
             self._network_details.drop(self._network_details[self._network_details['network'].isin(merge_networks_list)].index, inplace=True)
+            res = Response(response=f"done", status=200)
         except Exception as e:
             res = Response(response=f"Error handling merge_network request: {repr(e)}", status=400)
         return res
 
     def send_injection_message(self, request: Request):
+        """allow messages from the server simulators to be injected in the network network
+
+        Args:
+            message (Message): The message detailing the message type, content along with the source and destination id of the ships
+
+        Returns:
+            [string]: confirmation message detailing if the message has been sent and o whhich ship has it been sent to.
+        """
         try:
             ship_id = request.form.get('ship_id')
             for ship in self._controller_list.keys():
@@ -121,8 +139,16 @@ class ControllerManager(Server):
         return res
     
     def recieve_ship_messages(self, request: Request):
+        """Transmit messages between ships
+
+        Args:
+            message (Message): The message detailing the message type, content along with the source and destination id of the ships
+
+        Returns:
+           string [bool]: True in case the message has been successfully sent and False if the ships were not in the same network
+        """
         try:
-            message = requests.form.get('message')
+            message = request.form.get('message')
             message_sent = False
             for controller in self._controller_list.keys():
                 if self._controller_list[controller].ship_in_network(message.source):
@@ -138,10 +164,22 @@ class ControllerManager(Server):
         return res
     
     def add_to_network(self, request: Request):
+        """Add node from the controllers network entity list
+
+        Args:
+            ship_id (Request): Identify the ship that needs to be added to the network
+            network (Request): this will identify the network name hence idenify the controller ship id.
+        """
         controler_id = self._network_details.loc[self._network_details['network'] == request.args.get('network'), 'controller_id'][0]
         self._controller_list[controler_id].add_ships([request.args.get('ship_id')])
     
     def remove_from_network(self, request: Request):
+        """Remove node from the controllers network entity list
+
+        Args:
+            ship_id (Request): Identify the ship that needs to be added to the network
+            network (Request): this will identify the network name hence idenify the controller ship id.
+        """
         controler_id = self._network_details.loc[self._network_details['network'] == request.args.get('network'), 'controller_id'][0]
         self._controller_list[controler_id].remove_ship(request.args.get('ship_id'))
 

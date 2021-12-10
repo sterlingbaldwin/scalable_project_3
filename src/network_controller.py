@@ -29,7 +29,7 @@ class NetworkController(Ship):
         self._network_ships = []
 
     def get_network(self):
-        """[summary]
+        """
         
             Get the network 
         """
@@ -42,7 +42,7 @@ class NetworkController(Ship):
         self._ships = res.ships
 
     def message_carry_request(self, message: Message):
-        """[summary]
+        """
 
             Pass source and dest to the controller manager to see if in the same network
         """
@@ -69,7 +69,7 @@ class NetworkController(Ship):
 
 
     def message_manager(self, message: Message):
-        """[summary]
+        """
 
             Pass source and dest to the controller manager to see if in the same network
         """
@@ -101,10 +101,28 @@ class NetworkController(Ship):
 
 
     def add_ships(self, new_ships: list):
+        """Add a list of ships to a the controller's entity network list
+
+        Args:
+            new_ships (list): List of the ship_ids
+        """
         self._network_ships += new_ships
     
     def remove_ship(self, ship_id:str):
+        """Remove a ship_id of the controller's entity network list
+
+        Args:
+            ship_id (str): ID of the ship that is to be removed from the network
+        """
         self._network_ships.remove(ship_id)
     
     def ship_in_network(self, ship_id: str):
+        """Check if the ship is part of the controller's network.
+
+        Args:
+            ship_id (str): Id of the ship that needs to be verified
+
+        Returns:
+            [bool]: Check if the ship is part of the controller's network
+        """
         return ship_id in self._network_ships
