@@ -334,3 +334,12 @@ Return
 	[ship_list: array]: The list of the ships in range
 ```
 
+## Project Contributor:
+Being a group project, a very important aspect was to manage the work amongst ourselves. The following are brief descriptions of each team members contribution to the project:
+1.	Sterling Baldwin: Designed the architecture of the network, built the intercommunication between the PI’s. Wrote the program initialization, the simulator and its integration with the other servers. Created project scaffold, and wrote the flask server code the entity and controller managers inherit from.
+2.	Zhouhao Rui: Worked on the realizing the controller entities and the controller manager.
+3.	Angkirat Sandhu: Worked on the realizing the Ship entities and the entity manager.
+4.	Vishal Ruhil: Worked on the project management and Documentation process
+
+Even though we had divided the work among ourselves by modules there were often interactions to achieve interoperability amongst the three modules.
+
