@@ -316,15 +316,15 @@ Return:
 	[id]: str: The ship's id
 ```
 
-### get_network
+### controller_message
 
 ```
-ENDPOINT: /get_network
-[summary]: Calcualte the network from the ship detail list and returns
+ENDPOINT: /controller_message
+[summary]: Make the enitities to make action or receive message
 Params: 
-	[shipID: str]: The id of the ship
+	[message: str]: The specific message to be sent
 Return:
-	[network: list]: The network of the ship located
+	[void]: The ships will all execute the actions or specific ship recevice message
 ```
 
 ### add_to_network
@@ -338,15 +338,25 @@ Return:
 	[network: list]: The updated network list
 ```
 
-### ping
+### update
 
 ```
-ENDPOINT: /ping
-[summary]: Get the ships in range
+ENDPOINT: /update
+[summary]: update the loc, range, speed of all ships
 Params:
-	[id: str]: The id of the ship
+	[None]
 Return
-	[ship_list: array]: The list of the ships in range
+	[void]: Update the loc, range, speed of all the ships
+```
+
+### remove_from_network
+```
+ENDPOINT: /remove_from_network
+[summary]: remove the ship from the network
+Params:
+	[ship_id: str]: the id of the ship needed to remove
+Return
+	[void]: Remove the specific ship from the network
 ```
 
 ## Project Contributor:
