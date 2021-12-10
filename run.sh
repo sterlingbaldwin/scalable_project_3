@@ -7,8 +7,4 @@ pip install --upgrade pip
 pip install -r requirements.txt
 cd ./src
 
-python controller_manager.py > controller.log &
-
-python entity_manager.py > entity.log &
-
 python main.py
