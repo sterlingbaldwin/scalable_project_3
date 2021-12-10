@@ -17,8 +17,8 @@ USER = os.environ['USER']
 PROJECT_PATH = f"/users/pgrad/{USER}/projects/scalable_project_3/"
 VENV_PATH = f".venv/bin/activate"
 PI_ADDRESSES = {
-    "controllers": ["10.35.70.29"], 
-    # "controllers": ["10.35.70.30"], 
+    # "controllers": ["10.35.70.29"], 
+    "controllers": ["10.35.70.30"], 
     "entities": ["10.35.70.30"]
 }
 
