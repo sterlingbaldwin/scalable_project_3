@@ -93,6 +93,7 @@ class EntityManager(Server):
         """
         try:
             self._element_details.pop(request.form.get('ship_id'))
+            self._network_details.drop(request.form.get("ship_id"))
             res = Response(response=f"Removed Ship: {request.form.get('ship_id')}", status=200)
         except Exception as e:
             res = Response(response=f"Error handling remove_ship request: {repr(e)}", status=400)
@@ -199,6 +200,15 @@ class EntityManager(Server):
         except Exception as e:
             res = Response(response=f"Error handling update request: {repr(e)}", status=400)
         return res  
+    
+    def remove_from_network(self, request: Request):
+        try:
+            ship_id = request.args.get("ship_id")
+            self._network_details.drop([ship_id])
+            res = Response(response=f"Remove from network: {ship_id}", status=200)
+        except Exception as e:
+            res = Response(response=f"Error handling remove from network request: {repr(e)}", status=400)
+        return res
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
