@@ -168,6 +168,14 @@ class EntityManager(Server):
         return res
 
     def netweork_controller_message(self, request:Request):
+        """gets a message fromt he controller node and transmits the message to the intended ship
+
+        Args:
+            message (Request): The message detailing the message type, content along with the source and destination id of the ships
+
+        Returns:
+            [str]: Confirmation message when the message is transmitted to the intended ship 
+        """
         try:
             message = request.args.get("message")
             message_type = message.message_type
@@ -187,10 +195,6 @@ class EntityManager(Server):
         """
         Go through the element_details table to update the ship details
 
-        Parametes:
-        None
-        Return:
-
         """
         try:
             for ship_id in self._element_details:
@@ -202,6 +206,14 @@ class EntityManager(Server):
         return res  
     
     def remove_from_network(self, request: Request):
+        """Remove the network from the entity completely fromt the environment
+
+        Args:
+            ship_id (Request): the ship that is to be removed
+
+        Returns:
+            [str]: confirmation message on completing removal operation
+        """
         try:
             ship_id = request.args.get("ship_id")
             self._network_details.drop([ship_id])
