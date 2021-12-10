@@ -60,14 +60,14 @@ The simulator is also responsible for triggering an update function. Each entity
 3. Create/Updated the ephimeral network basis the new ship positions and connections. This would also including merging of networks there is communication chain link created between the two.
 4. Create any new network controllers in case of a newly initiated network. Remove a controller of the smaller network in the event where two networks merge to create a single ephimeral network.
 
-<img src="./doc/structure.png" style="zoom:50%;" />
+<img src="./doc/structure.jpeg" style="zoom:50%;" />
 
 ## Message
 
 The message object is our atomic data unit and consists of the following:
 
-	* Sender, name and station location
-	* Receiver, name and optionally last known location
+	* Sender, ship name
+	* Receiver, target ship name
 	* checksum
 	* if we have time and decide to get fancy, public key of the sender
 
@@ -237,45 +237,60 @@ Return:
 	[id: str]: The controller's id
 ```
 
-### route_message
+### merge_network
 
 ```
-ENDPOINT: /route_message
-[summary]: route the message from the source ship to the destination
+ENDPOINT: /merge_network
+[summary]: merge network when controller changes
 Params:
-	[source_id: str]: The id of the source ship
-	[destination_id: str]: The id of the destination ship
-	[message: Message]: The message from sources
+	[actual_network]: id of the actual controller
+	[merge_networks_list]: the id of networks needed to be merged
 Return:
 	void
-	[If the message is common message, will add the message to the destination ship
-	 If the message is an speed message, will slow down/accelerate the destination ship
-	 If the message is an action message, will give the destination specific action]
+	[merge the different networks and replace the network controller with the controller in actual_network]
 ```
 
-### Get_controller
+### send_injection_message
 
 ```
-ENDPOINT: /get_controller
-[summary]: Get the controller list
+ENDPOINT: /send_injection_message
+[summary]: send injection action to all controllers
 Params:
-	None
+	ship_id: the id of the destination controller
 Return
-	[controller_list: array]: The list of the controller
+	[void]: make injection action to all controllers
 ```
 
-### ping
+### recieve_ship_messages
 
 ```
-ENDPOINT: /ping
-[summary]: Get the ships in range
+ENDPOINT: /recieve_ship_messages
+[summary]: send message to the target controller
 Params:
-	[id: str]: The id of the ship
+	[message: str]: The message needed to be sent to the target controller
 Return
-	[ship_list: array]: The list of the ships in range
+	[void]: send spefific message to the destination controller
 ```
 
+### add_to_network
+```
+ENDPOINT: /add_to_network
+[summary]: add specific controller to the network
+Params:
+	[controller_id: str]: The id of the controller needed to add
+Return:
+	[void]: Add the controller to the network
+```
 
+### remove_from_network
+```
+ENDPOINT: /remove_from_network
+[summary]: remove specific controller to the network
+Params:
+	[controller_id: str]: The id of the controller needed to remove
+Return:
+	[void]: Remove the controller to the network
+```
 
 ## --Entity(Network) server
 
@@ -301,15 +316,15 @@ Return:
 	[id]: str: The ship's id
 ```
 
-### get_network
+### controller_message
 
 ```
-ENDPOINT: /get_network
-[summary]: Calcualte the network from the ship detail list and returns
+ENDPOINT: /controller_message
+[summary]: Make the enitities to make action or receive message
 Params: 
-	[shipID: str]: The id of the ship
+	[message: str]: The specific message to be sent
 Return:
-	[network: list]: The network of the ship located
+	[void]: The ships will all execute the actions or specific ship recevice message
 ```
 
 ### add_to_network
@@ -323,15 +338,25 @@ Return:
 	[network: list]: The updated network list
 ```
 
-### ping
+### update
 
 ```
-ENDPOINT: /ping
-[summary]: Get the ships in range
+ENDPOINT: /update
+[summary]: update the loc, range, speed of all ships
 Params:
-	[id: str]: The id of the ship
+	[None]
 Return
-	[ship_list: array]: The list of the ships in range
+	[void]: Update the loc, range, speed of all the ships
+```
+
+### remove_from_network
+```
+ENDPOINT: /remove_from_network
+[summary]: remove the ship from the network
+Params:
+	[ship_id: str]: the id of the ship needed to remove
+Return
+	[void]: Remove the specific ship from the network
 ```
 
 ## Project Contributor:
